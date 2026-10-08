@@ -1,0 +1,308 @@
+.ticket {
+  --stub: 96px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--stub);
+  border: var(--border);
+  border-radius: 10px;
+  background: var(--manila);
+  color: var(--ink);
+  box-shadow: 7px 7px 0 var(--bench-deep);
+}
+
+/* notches where the perforation meets the edges */
+.ticket::before,
+.ticket::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  right: calc(var(--stub) - 10px);
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--bench);
+}
+
+.ticket::before {
+  top: -13px;
+  clip-path: inset(50% -4px -4px -4px);
+}
+
+.ticket::after {
+  bottom: -13px;
+  clip-path: inset(-4px -4px 50% -4px);
+}
+
+.ticket[data-kind="paid"] {
+  background: var(--manila-dim);
+}
+
+.ticket[data-kind="conflict"] {
+  box-shadow: 7px 7px 0 var(--alarm);
+}
+
+.ticket[data-fresh="true"] {
+  animation: thunk 420ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+}
+
+.body {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px 20px 18px 22px;
+  border-right: 3px dashed var(--ink);
+}
+
+.refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-right: 120px;
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 1.08rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.slash {
+  color: var(--signal-press);
+}
+
+.amount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  line-height: 1;
+}
+
+.amount :global(.mono) {
+  font-size: clamp(1.7rem, 3.4vw, 2.3rem);
+  font-weight: 700;
+  font-stretch: 78%;
+  letter-spacing: -0.04em;
+}
+
+.unit {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.details {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.details > div {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+}
+
+.details dt {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.details dd {
+  margin: 0;
+}
+
+.alert {
+  padding: 8px 10px;
+  border: 2px solid var(--ink);
+  border-left-width: 8px;
+  border-left-color: var(--alarm);
+  background: #fbe9d4;
+  font-size: 0.88rem;
+}
+
+.outcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 2px solid var(--ink);
+  background: #fbe9d4;
+  font-size: 0.88rem;
+}
+
+.outcome[data-kind="error"] {
+  border-left: 8px solid var(--alarm);
+}
+
+.outcome[data-kind="note"] {
+  border-left: 8px solid var(--highlighter);
+}
+
+.outcome[data-kind="sent"] {
+  border-left: 8px solid var(--signal);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  padding-top: 4px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.88rem;
+}
+
+.stamp {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+}
+
+.ticket[data-fresh="true"] .stamp {
+  animation: stamp 380ms 180ms both cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+/* ---------------------------------------------------------------- stub + punch */
+
+.stub {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 14px 6px;
+}
+
+.punch {
+  width: 40px;
+  height: 40px;
+  border: 2.5px dashed var(--ink-soft);
+  border-radius: 50%;
+}
+
+.ticket[data-kind="paid"] .punch,
+.ticket[data-kind="conflict"] .punch {
+  border: 3px solid var(--ink);
+  background: var(--bench);
+  box-shadow: inset 4px 4px 0 var(--bench-deep);
+}
+
+.ticket[data-fresh="true"] .punch {
+  animation: punch 360ms cubic-bezier(0.25, 0.8, 0.35, 1.5);
+}
+
+.chad {
+  position: absolute;
+  top: calc(50% - 32px);
+  left: calc(50% - 20px);
+  width: 40px;
+  height: 40px;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--manila);
+  pointer-events: none;
+  animation: chad 1100ms 120ms cubic-bezier(0.5, 0, 0.9, 0.6) both;
+}
+
+.stubLabel {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.15;
+}
+
+@keyframes punch {
+  0% {
+    transform: scale(0.15);
+  }
+  65% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes chad {
+  0% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(26px, 170px) rotate(220deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes thunk {
+  0% {
+    transform: translate(0, 0);
+  }
+  30% {
+    transform: translate(3px, 4px);
+  }
+  65% {
+    transform: translate(-1px, -1px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: rotate(-7deg) scale(1.9);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-7deg) scale(1);
+  }
+}
+
+@media (max-width: 560px) {
+  .ticket {
+    --stub: 66px;
+  }
+
+  .body {
+    padding: 16px 14px 16px 16px;
+  }
+
+  .refs {
+    padding-right: 0;
+    padding-top: 46px;
+  }
+
+  .stamp {
+    top: 10px;
+    right: 10px;
+  }
+
+  .details > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .punch {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Only pad the refs for the stamp when there is one */
+.ticket:not([data-kind="paid"]):not([data-kind="conflict"]) .refs {
+  padding-right: 0;
+  padding-top: 0;
+}

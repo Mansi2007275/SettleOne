@@ -1,0 +1,119 @@
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+  padding-block: clamp(36px, 6vw, 72px) clamp(28px, 4vw, 48px);
+}
+
+.copy {
+  display: grid;
+  gap: 20px;
+}
+
+.title {
+  max-width: 15ch;
+  font-size: clamp(2.5rem, 6.2vw, 4.9rem);
+  font-stretch: 82%;
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+}
+
+.lede {
+  max-width: 58ch;
+  color: var(--peach);
+  font-size: clamp(1rem, 1.4vw, 1.12rem);
+  line-height: 1.6;
+}
+
+/* The rule ticket: the one loud object on the page */
+.rule {
+  --stub: 84px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr var(--stub);
+  margin: 0;
+  border: var(--border);
+  border-radius: 12px;
+  background: var(--signal);
+  color: var(--ink);
+  box-shadow: 10px 10px 0 var(--bench-deep);
+  transform: rotate(-2.5deg);
+}
+
+.rule::before,
+.rule::after {
+  content: "";
+  position: absolute;
+  right: calc(var(--stub) - 10px);
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--bench);
+}
+
+.rule::before {
+  top: -13px;
+  clip-path: inset(50% -4px -4px -4px);
+}
+
+.rule::after {
+  bottom: -13px;
+  clip-path: inset(-4px -4px 50% -4px);
+}
+
+.ruleBody {
+  display: grid;
+  gap: 12px;
+  padding: 24px 22px 22px 24px;
+  border-right: 3px dashed var(--ink);
+}
+
+.ruleTitle {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.ruleText {
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  font-weight: 800;
+  font-stretch: 80%;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.ruleCaption {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ruleCaption a:hover {
+  color: var(--manila);
+}
+
+.ruleStub {
+  display: grid;
+  place-items: center;
+}
+
+.ruleHole {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--bench);
+  box-shadow: inset 4px 4px 0 var(--bench-deep);
+}
+
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .rule {
+    max-width: 460px;
+    transform: rotate(-1.5deg);
+  }
+}

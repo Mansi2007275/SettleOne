@@ -1,0 +1,170 @@
+/* Left-column workbench panels: composer, invoice file, wallet, crash test */
+
+.composer {
+  display: grid;
+  gap: 16px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 460px) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+.keyPreview {
+  padding: 10px 12px;
+  border: 2px dashed var(--peach-dim);
+  border-radius: 3px;
+  color: var(--peach);
+  font-size: 0.85rem;
+}
+
+.keyPreview :global(.mono) {
+  color: var(--manila);
+}
+
+.notice {
+  padding: 8px 10px;
+  border-left: 6px solid var(--highlighter);
+  background: var(--bench-deep);
+  color: var(--manila);
+  font-size: 0.88rem;
+}
+
+.file {
+  display: grid;
+  gap: 14px;
+}
+
+.fileActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.saveState {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.saveState::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--bench-deep);
+  border-radius: 2px;
+  background: var(--hold);
+}
+
+.saveState[data-saved="yes"]::before {
+  background: var(--signal);
+}
+
+.saveState[data-saved="no"]::before {
+  background: var(--highlighter);
+}
+
+.report {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 2px solid var(--bench-deep);
+  background: var(--bench-deep);
+  color: var(--manila);
+  font-size: 0.88rem;
+}
+
+.report ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #ff9c90;
+}
+
+.wallet {
+  display: grid;
+  gap: 10px;
+}
+
+.balance {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--manila);
+  font-weight: 700;
+}
+
+.balance :global(.mono) {
+  font-size: 1.8rem;
+  font-stretch: 78%;
+  letter-spacing: -0.03em;
+}
+
+.crash h2 {
+  font-size: 1.2rem;
+  font-stretch: 88%;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--manila);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.toggleTrack {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 28px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--manila);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--ink);
+  transition: transform 140ms ease-out;
+}
+
+.toggle input:checked + .toggleTrack {
+  background: var(--highlighter);
+}
+
+.toggle input:checked + .toggleTrack .toggleThumb {
+  transform: translateX(24px);
+  background: var(--alarm);
+}
+
+.toggle input:focus-visible + .toggleTrack {
+  outline: 3px solid var(--highlighter);
+  outline-offset: 3px;
+}
+
+.toggle input:disabled + .toggleTrack {
+  opacity: 0.5;
+}

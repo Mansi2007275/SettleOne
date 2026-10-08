@@ -1,0 +1,92 @@
+.desk {
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(24px, 3vw, 40px);
+  padding-bottom: 72px;
+}
+
+.bench {
+  display: grid;
+  gap: 24px;
+}
+
+.rail {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+
+.railHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--bench-deep);
+}
+
+.railHead h2 {
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  font-stretch: 82%;
+}
+
+.tally {
+  color: var(--peach);
+  font-size: 0.95rem;
+}
+
+.tally :global(.mono) {
+  color: var(--manila);
+}
+
+.tickets {
+  display: grid;
+  gap: 26px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.armed {
+  padding: 10px 14px;
+  border: 3px solid var(--ink);
+  background: var(--highlighter);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 5px 5px 0 var(--bench-deep);
+}
+
+.empty {
+  display: grid;
+  gap: 8px;
+  padding: 40px 28px;
+  border: 3px dashed var(--peach-dim);
+  border-radius: 10px;
+  color: var(--peach);
+  text-align: center;
+  justify-items: center;
+}
+
+.empty p {
+  max-width: 44ch;
+}
+
+.emptyTitle {
+  color: var(--manila);
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 1.4rem;
+}
+
+@media (max-width: 900px) {
+  .desk {
+    grid-template-columns: 1fr;
+  }
+
+  /* On phones the tickets are what you came for; the workbench follows them. */
+  .rail {
+    order: -1;
+  }
+}
