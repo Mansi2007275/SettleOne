@@ -1,0 +1,126 @@
+.wrap {
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 30;
+  display: grid;
+  min-width: 240px;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 8px;
+  border: var(--border);
+  border-radius: 3px;
+  background: var(--manila);
+  color: var(--ink);
+  box-shadow: 6px 6px 0 var(--bench-deep);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background: var(--ink);
+  color: var(--manila);
+}
+
+.menuItem img {
+  border-radius: 4px;
+}
+
+.menuNote {
+  padding: 8px 10px;
+  font-size: 0.9rem;
+}
+
+.menuAddress {
+  padding: 8px 10px 10px;
+  margin-bottom: 4px;
+  border-bottom: 2px dashed var(--ink);
+  color: var(--ink-soft);
+}
+
+.addressButton {
+  gap: 10px;
+}
+
+.connectedDot {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--signal);
+}
+
+.inlineError {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: max-content;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 8px 10px;
+  border: 2px solid var(--ink);
+  background: var(--alarm);
+  color: var(--manila);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.network {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border: 2px solid var(--bench-line-strong);
+  border-radius: 999px;
+  color: var(--peach);
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.networkDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--hold);
+}
+
+.network[data-state="live"] .networkDot {
+  background: var(--signal);
+  box-shadow: 0 0 0 3px rgb(255 107 26 / 0.25);
+}
+
+.network[data-state="mismatch"] {
+  border-color: var(--highlighter);
+}
+
+.network[data-state="mismatch"] .networkDot {
+  background: var(--highlighter);
+}
+
+.network[data-network="mainnet"] {
+  border-color: var(--signal);
+}
+
+.networkWarn {
+  color: var(--highlighter);
+  font-size: 0.78rem;
+}
