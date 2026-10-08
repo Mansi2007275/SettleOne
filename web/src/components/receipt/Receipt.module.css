@@ -1,0 +1,136 @@
+.page {
+  display: grid;
+  justify-items: center;
+  padding-block: 56px 80px;
+}
+
+/* A till receipt: manila slip, torn zigzag bottom edge */
+.slip {
+  --tooth: 14px;
+  position: relative;
+  display: grid;
+  gap: 18px;
+  width: min(100%, 640px);
+  padding: 32px clamp(18px, 4vw, 36px) calc(36px + var(--tooth));
+  border: var(--border);
+  border-bottom: 0;
+  background: var(--manila);
+  color: var(--ink);
+  filter: drop-shadow(8px 8px 0 var(--bench-deep));
+  -webkit-mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--tooth) * 2)
+      var(--tooth) repeat-x,
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--tooth) + 1px) no-repeat;
+  mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--tooth) * 2)
+      var(--tooth) repeat-x,
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--tooth) + 1px) no-repeat;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 3px dashed var(--ink);
+}
+
+.head h1 {
+  color: var(--ink);
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  font-stretch: 80%;
+}
+
+.head p {
+  font-weight: 700;
+}
+
+.refs {
+  display: grid;
+  gap: 4px;
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 1.2rem;
+}
+
+.refs span {
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-stretch: 100%;
+}
+
+.refs span[data-ok="yes"] {
+  color: #8a3a00;
+}
+
+.refs span[data-ok="no"] {
+  color: var(--alarm);
+}
+
+.lines {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.lines > div {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  padding-bottom: 10px;
+  border-bottom: 1px dotted rgb(28 15 6 / 0.35);
+}
+
+.lines dt {
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.lines dd {
+  margin: 0;
+}
+
+.lines a {
+  color: var(--ink);
+}
+
+.lines a:hover {
+  color: var(--signal-press);
+}
+
+.amount {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.stampRow {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.stampRow :global(.stamp) {
+  font-size: 1.7rem;
+  color: var(--signal-press);
+  border-color: var(--signal-press);
+}
+
+.fine {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.back {
+  margin-top: 28px;
+}
+
+@media (max-width: 520px) {
+  .lines > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
