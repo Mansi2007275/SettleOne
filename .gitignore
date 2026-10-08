@@ -1,0 +1,23 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# web
+web/node_modules/
+web/.next/
+web/out/
+web/*.tsbuildinfo
+web/.vercel
+
+# contracts
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/31337/
+contracts/broadcast/**/dry-run/
+
+# os / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
