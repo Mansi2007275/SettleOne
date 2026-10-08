@@ -1,0 +1,27 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.30"
+evm_version = "prague"
+optimizer = true
+optimizer_runs = 10000
+# The deploy script records addresses in ../deployments/<network>.json
+fs_permissions = [{ access = "read-write", path = "../deployments" }]
+
+[fuzz]
+runs = 1000
+
+[invariant]
+runs = 256
+depth = 64
+fail_on_revert = false
+
+[rpc_endpoints]
+arc_testnet = "https://rpc.testnet.arc.io"
+arc_mainnet = "https://rpc.mainnet.arc.io"
+
+[fmt]
+line_length = 120
