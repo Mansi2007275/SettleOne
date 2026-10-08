@@ -1,0 +1,33 @@
+{
+  "name": "settleonce-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SettleOnce desk: pay USDC invoices on Arc at most once, and recover them after a crash.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "5.3.0",
+    "@fontsource-variable/martian-mono": "5.3.0",
+    "@tanstack/react-query": "5.104.1",
+    "next": "15.5.27",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "viem": "2.57.4",
+    "wagmi": "2.19.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}
