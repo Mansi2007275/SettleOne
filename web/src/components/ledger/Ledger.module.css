@@ -1,0 +1,168 @@
+.page {
+  padding-block: 48px 80px;
+  display: grid;
+  gap: 32px;
+}
+
+.head {
+  display: grid;
+  gap: 12px;
+  max-width: 70ch;
+}
+
+.head h1 {
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  font-stretch: 80%;
+  letter-spacing: -0.035em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 40px);
+  align-items: start;
+}
+
+.lookup {
+  display: grid;
+  gap: 14px;
+  position: sticky;
+  top: 92px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.feed {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.feedHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--bench-deep);
+}
+
+.feedHead h2 {
+  font-size: 1.7rem;
+  font-stretch: 82%;
+}
+
+.list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* each settlement is a torn-off slip */
+.row {
+  display: grid;
+  grid-template-columns: minmax(130px, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 14px 18px;
+  border: var(--border);
+  border-left-width: 10px;
+  border-left-color: var(--signal);
+  border-radius: 4px;
+  background: var(--manila);
+  color: var(--ink);
+  box-shadow: 5px 5px 0 var(--bench-deep);
+}
+
+.rowAmount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rowAmount :global(.mono) {
+  font-size: 1.4rem;
+  font-stretch: 78%;
+  letter-spacing: -0.03em;
+}
+
+.rowMeta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  justify-content: start;
+  gap: 4px 20px;
+  margin: 0;
+}
+
+.rowMeta dt {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.rowMeta dd {
+  margin: 0;
+}
+
+.rowMeta a {
+  color: var(--ink);
+}
+
+.rowLinks {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.rowLinks a {
+  color: var(--ink);
+}
+
+.rowLinks a:hover {
+  color: var(--signal-press);
+}
+
+.error {
+  padding: 10px 12px;
+  border: 3px solid var(--ink);
+  background: var(--alarm);
+  color: var(--manila);
+  font-weight: 600;
+}
+
+.empty {
+  color: var(--peach-dim);
+}
+
+@media (max-width: 1000px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .rowMeta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rowLinks {
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lookup {
+    position: static;
+  }
+}
