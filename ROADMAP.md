@@ -8,6 +8,7 @@
 - [x] Desk: write invoices, CSV load/save, approve-exact + pay, status always read from chain
 - [x] Crash test (labelled fault injection) and recovery from the saved file
 - [x] Public receipt page and ledger, no wallet needed
+- [x] Optional **Scan invoice**: in-browser OCR (tesseract.js) pre-fills the form; the user still reviews and adds
 - [ ] Deployed and verified on Arc Testnet, run-through recorded in `docs/VERIFICATION.md`
 - [ ] Deployed on Arc mainnet, real settlement linked from the README
 - [ ] 90-second demo video
@@ -19,6 +20,7 @@
 3. **Local E2E harness in the repo**: `arc-anvil` fork of testnet + Playwright script that runs the full crash-and-recover flow in CI.
 4. **Pay all ready**: run the existing one-at-a-time flow down the list, stopping at the first error.
 5. **Receipt export**: download a receipt as PDF / JSON for accounting.
+6. **Better scanning**: PDF pages as input, a crop/rotate step before OCR, a self-hosted copy of the language data so scanning works offline, and line-item reading so a multi-invoice page becomes several tickets. Still pre-fill only — the user always confirms.
 
 Out of scope on purpose: escrow, refunds, subscriptions, cross-chain, AI invoice parsing, multi-wallet organisations.
 
