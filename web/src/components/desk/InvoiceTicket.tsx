@@ -102,11 +102,23 @@ export function InvoiceTicket(props: Props) {
         ) : null;
         break;
       case "approval":
+        // Allowance is short, so the pay flow batches approve + payOnce through Arc's
+        // Multicall3From predeploy: one wallet signature. It falls back to two signatures if the
+        // batch won't simulate, which is why the tag says what is expected, not what is promised.
         chip = { tone: "attention", text: "Needs approval" };
         action = (
-          <button className="btn btn-signal btn-small" onClick={props.onPay} disabled={otherBusy || short}>
-            Approve and pay {amount} USDC
-          </button>
+          <>
+            <button className="btn btn-signal btn-small" onClick={props.onPay} disabled={otherBusy || short}>
+              Pay {amount} USDC
+            </button>
+            <span className={styles.oneSig}>
+              1 signature
+              <span className="visually-hidden">
+                {" "}
+                — the approval and the payment are sent as one batched transaction, so your wallet asks once.
+              </span>
+            </span>
+          </>
         );
         break;
       case "ready":
