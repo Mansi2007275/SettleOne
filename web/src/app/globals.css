@@ -1,44 +1,125 @@
 /*
  * SettleOnce — "punch desk"
- * A dark workbench (burnt umber cutting mat) with manila paper tickets on it.
+ * A workbench (cutting mat) with paper tickets on it.
  * Every invoice is a ticket; settling it punches a hole through the stub, once.
  * Neobrutal construction: thick ink borders, hard offset shadows, flat colour, no gradients for decoration.
+ *
+ * Colour lives here and nowhere else. Every token is semantic (what a surface is for),
+ * never literal (what shade it happens to be), so a theme is one block of overrides.
+ * :root is the light desk and the default; [data-theme="dark"] is the original dark bench.
  */
 
 :root {
-  /* bench */
-  --bench: #2b1709;
-  --bench-deep: #170b03;
-  --bench-raised: #3b2010;
-  --bench-line: #3a2111;
-  --bench-line-strong: #4a2b16;
+  /* the desk surface itself */
+  --page: #f6ebda;
+  --grid-fine: #e8d6bc;
+  --grid-strong: #e8d6bc;
+  --rule: #1c0f06;
+  --edge: #8e6b47;
+  --edge-soft: #d4be9c;
 
-  /* paper */
-  --manila: #f7ddb8;
-  --manila-dim: #e9c99b;
+  /* panels bolted to the desk */
+  --panel: #fff8ee;
+  --panel-border: #1c0f06;
+  --well: #f1e2c9;
+  --shadow-color: #1c0f06;
+
+  /* paper laid on the desk: tickets, slips, menus */
+  --paper: #f7ddb8;
+  --paper-dim: #edd3ac;
+  --paper-alert: #fbe9d4;
+  --tag: #e8d6bc;
+  --hole-shade: #dcc7a6;
+  --hairline: rgb(28 15 6 / 0.35);
+
+  /* type */
+  --heading: #1c0f06;
+  --text: #1c0f06;
+  --text-dim: #6b4a2e;
   --ink: #1c0f06;
-  --ink-soft: #5b3a22;
+  --ink-soft: #6b4a2e;
+  --on-ink: #fff8ee;
+
+  /* fields */
+  --input: #ffffff;
+  --placeholder: #7a5a3c;
 
   /* signal */
-  --signal: #ff6b1a;
-  --signal-press: #e45608;
-  --peach: #ffc9a0;
-  --peach-dim: #c99a77;
+  --accent: #ff6b1a;
+  --accent-press: #e45608;
+  --accent-ink: #8f3400;
+  --accent-glow: rgb(255 107 26 / 0.3);
+  --link-hover: #8f3400;
+  --focus: #1c0f06;
   --highlighter: #ffd23f;
+  --warn-ink: #7a5200;
   --alarm: #e4362b;
+  --alarm-fill: #a81b0e;
+  --alarm-ink: #a81b0e;
+  --alarm-text: #a81b0e;
   --hold: #9c8673;
 
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --page: #2b1709;
+  --grid-fine: #3a2111;
+  --grid-strong: #4a2b16;
+  --rule: #170b03;
+  --edge: #c99a77;
+  --edge-soft: #4a2b16;
+
+  --panel: #3b2010;
+  --panel-border: #170b03;
+  --well: #170b03;
+  --shadow-color: #170b03;
+
+  --paper: #f7ddb8;
+  --paper-dim: #e9c99b;
+  --paper-alert: #fbe9d4;
+  --tag: #c99a77;
+  --hole-shade: #170b03;
+  --hairline: rgb(28 15 6 / 0.35);
+
+  --heading: #f7ddb8;
+  --text: #ffc9a0;
+  --text-dim: #c99a77;
+  --ink: #1c0f06;
+  --ink-soft: #5b3a22;
+  --on-ink: #f7ddb8;
+
+  --input: #f7ddb8;
+  --placeholder: #7a5a3c;
+
+  --accent: #ff6b1a;
+  --accent-press: #e45608;
+  /* paper is light in both themes, so accent-as-text on paper stays the dark burnt orange */
+  --accent-ink: #8f3400;
+  --accent-glow: rgb(255 107 26 / 0.25);
+  --link-hover: #ff6b1a;
+  --focus: #ffd23f;
+  --highlighter: #ffd23f;
+  --warn-ink: #ffd23f;
+  --alarm: #e4362b;
+  --alarm-fill: #a81b0e;
+  --alarm-ink: #a81b0e;
+  --alarm-text: #ff8a7f;
+  --hold: #9c8673;
+
+  color-scheme: dark;
+}
+
+:root {
   --font-sans: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Martian Mono Variable", "Martian Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --border: 3px solid var(--ink);
-  --shadow-bench: 6px 6px 0 var(--bench-deep);
+  --shadow-panel: 6px 6px 0 var(--shadow-color);
   --shadow-ink: 4px 4px 0 var(--ink);
 
   --gutter: clamp(16px, 4vw, 40px);
   --maxw: 1240px;
-
-  color-scheme: dark;
 }
 
 *,
@@ -55,20 +136,20 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background-color: var(--bench);
+  background-color: var(--page);
   /* self-healing cutting mat: fine grid every 24px, heavier every 120px */
   background-image:
-    linear-gradient(var(--bench-line-strong) 1px, transparent 1px),
-    linear-gradient(90deg, var(--bench-line-strong) 1px, transparent 1px),
-    linear-gradient(var(--bench-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--bench-line) 1px, transparent 1px);
+    linear-gradient(var(--grid-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px),
+    linear-gradient(var(--grid-fine) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-fine) 1px, transparent 1px);
   background-size:
     120px 120px,
     120px 120px,
     24px 24px,
     24px 24px;
   background-position: -1px -1px;
-  color: var(--peach);
+  color: var(--text);
   font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.5;
@@ -86,7 +167,7 @@ p {
 h1,
 h2,
 h3 {
-  color: var(--manila);
+  color: var(--heading);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.02em;
@@ -103,17 +184,19 @@ a {
   text-underline-offset: 3px;
 }
 
+/* Paper surfaces (tickets, slips, menus) re-point --link-hover at --accent-ink,
+   which is readable on paper in both themes. */
 a:hover {
-  color: var(--signal);
+  color: var(--link-hover);
 }
 
 :focus-visible {
-  outline: 3px solid var(--highlighter);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
 ::selection {
-  background: var(--signal);
+  background: var(--accent);
   color: var(--ink);
 }
 
@@ -144,7 +227,7 @@ a:hover {
 /* ---------------------------------------------------------------- buttons */
 
 .btn {
-  --btn-bg: var(--manila);
+  --btn-bg: var(--paper);
   --btn-fg: var(--ink);
   display: inline-flex;
   align-items: center;
@@ -189,23 +272,23 @@ a:hover {
 }
 
 .btn-signal {
-  --btn-bg: var(--signal);
+  --btn-bg: var(--accent);
 }
 
 .btn-signal:active {
-  --btn-bg: var(--signal-press);
+  --btn-bg: var(--accent-press);
 }
 
 .btn-ghost {
   --btn-bg: transparent;
-  --btn-fg: var(--peach);
-  border-color: var(--peach-dim);
+  --btn-fg: var(--text);
+  border-color: var(--edge);
   box-shadow: none;
 }
 
 .btn-ghost:hover {
-  --btn-fg: var(--manila);
-  border-color: var(--manila);
+  --btn-fg: var(--heading);
+  border-color: var(--heading);
   box-shadow: none;
   transform: none;
 }
@@ -229,16 +312,16 @@ a:hover {
 }
 
 .link-button:hover {
-  color: var(--signal);
+  color: var(--link-hover);
 }
 
 /* ---------------------------------------------------------------- panels on the bench */
 
 .panel {
-  border: 3px solid var(--bench-deep);
+  border: 3px solid var(--panel-border);
   border-radius: 2px;
-  background: var(--bench-raised);
-  box-shadow: var(--shadow-bench);
+  background: var(--panel);
+  box-shadow: var(--shadow-panel);
   padding: 20px;
 }
 
@@ -248,7 +331,7 @@ a:hover {
 }
 
 .panel-note {
-  color: var(--peach-dim);
+  color: var(--text-dim);
   font-size: 0.9rem;
 }
 
@@ -260,7 +343,7 @@ a:hover {
 }
 
 .field label {
-  color: var(--manila);
+  color: var(--heading);
   font-weight: 600;
   font-size: 0.92rem;
 }
@@ -271,7 +354,7 @@ a:hover {
   padding: 10px 12px;
   border: var(--border);
   border-radius: 3px;
-  background: var(--manila);
+  background: var(--input);
   color: var(--ink);
   font: inherit;
   font-size: 1rem;
@@ -284,11 +367,11 @@ a:hover {
 }
 
 .field input::placeholder {
-  color: #9b7a5a;
+  color: var(--placeholder);
 }
 
 .field input:focus-visible {
-  outline: 3px solid var(--signal);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -298,13 +381,13 @@ a:hover {
 }
 
 .field-error {
-  color: #ff8a7f;
+  color: var(--alarm-text);
   font-size: 0.85rem;
   font-weight: 600;
 }
 
 .field-hint {
-  color: var(--peach-dim);
+  color: var(--text-dim);
   font-size: 0.82rem;
 }
 
@@ -317,7 +400,7 @@ a:hover {
   padding: 4px 10px;
   border: 2px solid var(--ink);
   border-radius: 2px;
-  background: var(--manila);
+  background: var(--paper);
   color: var(--ink);
   font-weight: 700;
   font-size: 0.8rem;
@@ -334,21 +417,21 @@ a:hover {
 }
 
 .chip[data-tone="ready"] {
-  background: var(--manila);
+  background: var(--paper);
 }
 .chip[data-tone="attention"] {
   background: var(--highlighter);
 }
 .chip[data-tone="busy"] {
-  background: var(--signal);
+  background: var(--accent);
 }
 .chip[data-tone="paid"] {
   background: var(--ink);
-  color: var(--signal);
+  color: var(--accent);
 }
 .chip[data-tone="danger"] {
-  background: var(--alarm);
-  color: var(--manila);
+  background: var(--alarm-fill);
+  color: var(--on-ink);
 }
 .chip[data-tone="muted"] {
   background: var(--hold);
@@ -372,9 +455,9 @@ a:hover {
   justify-items: center;
   gap: 2px;
   padding: 6px 12px 7px;
-  border: 4px double var(--signal);
+  border: 4px double var(--accent-ink);
   border-radius: 6px;
-  color: var(--signal);
+  color: var(--accent-ink);
   font-family: var(--font-sans);
   font-weight: 800;
   font-stretch: 75%;
@@ -395,8 +478,8 @@ a:hover {
 }
 
 .stamp[data-tone="danger"] {
-  border-color: var(--alarm);
-  color: var(--alarm);
+  border-color: var(--alarm-ink);
+  color: var(--alarm-ink);
 }
 
 /* ---------------------------------------------------------------- hazard tape (setup + crash test) */
@@ -404,8 +487,8 @@ a:hover {
 .hazard {
   position: relative;
   border: 3px solid var(--ink);
-  background: var(--bench-raised);
-  box-shadow: var(--shadow-bench);
+  background: var(--panel);
+  box-shadow: var(--shadow-panel);
 }
 
 .hazard::before {
