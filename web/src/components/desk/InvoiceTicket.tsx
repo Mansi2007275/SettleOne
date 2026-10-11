@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Address } from "viem";
-import { chain } from "@/config/env";
+import { chain, network } from "@/config/env";
+import { useFeeEstimate } from "@/hooks/useFeeEstimate";
 import type { PayOutcome, PayStep } from "@/hooks/usePayInvoice";
 import { shortHex, txUrl } from "@/lib/explorer";
+import { displayFeeUnits, shortfall } from "@/lib/funds";
 import type { Invoice } from "@/lib/invoice";
 import type { TicketStatus } from "@/lib/settlement";
 import { formatUsdc } from "@/lib/usdc";
@@ -16,6 +18,8 @@ type Props = {
   invoice: Invoice;
   status: TicketStatus;
   payer: Address | undefined;
+  /** USDC balance of the paying wallet, from useUsdcAccount. undefined while unknown. */
+  balance: bigint | undefined;
   step: PayStep | null;
   outcome: PayOutcome | undefined;
   otherBusy: boolean;
@@ -34,9 +38,17 @@ const STEP_TEXT: Record<PayStep, string> = {
 };
 
 export function InvoiceTicket(props: Props) {
-  const { invoice, status, payer, step, outcome, otherBusy } = props;
+  const { invoice, status, payer, balance, step, outcome, otherBusy } = props;
   const amount = formatUsdc(invoice.amount);
   const fresh = usePunchMoment(status.kind === "paid");
+
+  // Only a ticket that is about to be paid needs a fee or a balance check.
+  const payable = status.kind === "ready" || status.kind === "approval";
+  const feeUnits = useFeeEstimate(payer, invoice, payable);
+  // The fee as it is shown, so "need" and "network fee" on screen actually add up.
+  const feeShown = feeUnits === undefined ? undefined : displayFeeUnits(feeUnits);
+  const missing = payable && balance !== undefined ? shortfall(balance, invoice.amount, feeUnits ?? 0n) : 0n;
+  const short = missing > 0n;
 
   let chip: { tone: string; text: string };
   let action: React.ReactNode = null;
@@ -92,7 +104,7 @@ export function InvoiceTicket(props: Props) {
       case "approval":
         chip = { tone: "attention", text: "Needs approval" };
         action = (
-          <button className="btn btn-signal btn-small" onClick={props.onPay} disabled={otherBusy}>
+          <button className="btn btn-signal btn-small" onClick={props.onPay} disabled={otherBusy || short}>
             Approve and pay {amount} USDC
           </button>
         );
@@ -100,7 +112,7 @@ export function InvoiceTicket(props: Props) {
       case "ready":
         chip = { tone: "ready", text: "Ready" };
         action = (
-          <button className="btn btn-signal btn-small" onClick={props.onPay} disabled={otherBusy}>
+          <button className="btn btn-signal btn-small" onClick={props.onPay} disabled={otherBusy || short}>
             Pay {amount} USDC
           </button>
         );
@@ -184,6 +196,31 @@ export function InvoiceTicket(props: Props) {
             ) : null}
           </div>
         </div>
+
+        {payable && !step ? (
+          <div className={styles.money}>
+            {feeShown !== undefined ? (
+              <p className={styles.fee}>
+                Network fee &asymp; <span className="mono">{formatUsdc(feeShown)}</span> USDC
+              </p>
+            ) : null}
+            {short ? (
+              <p className={styles.short} role="status">
+                Need about <span className="mono">{formatUsdc(invoice.amount + (feeShown ?? 0n))}</span> USDC
+                {feeShown !== undefined ? " (amount + network fee)" : ""}. You have{" "}
+                <span className="mono">{formatUsdc(balance!)}</span>.
+                {network !== "mainnet" ? (
+                  <>
+                    {" "}
+                    <a href="https://faucet.circle.com" target="_blank" rel="noreferrer">
+                      Get test USDC
+                    </a>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         {settled ? (
           <span className={`stamp ${styles.stamp}`} data-tone={status.kind === "conflict" ? "danger" : undefined}>
