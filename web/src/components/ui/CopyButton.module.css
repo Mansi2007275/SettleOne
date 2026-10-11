@@ -1,0 +1,53 @@
+/*
+ * Copy control. Colour comes from currentColor so one button works on the dark bench and on
+ * paper in both themes; the two flag colours are the paper-safe ink tokens.
+ */
+
+.wrap {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  vertical-align: middle;
+}
+
+/* the inline variant: a small punched square that sits next to a mono address or hash */
+.punch {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  box-shadow: 2px 2px 0 currentColor;
+  cursor: pointer;
+  transition:
+    transform 80ms ease-out,
+    box-shadow 80ms ease-out;
+}
+
+.punch:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 currentColor;
+}
+
+.punch:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 currentColor;
+}
+
+.flag {
+  color: var(--accent-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.flag[data-state="failed"] {
+  color: var(--alarm-ink);
+}

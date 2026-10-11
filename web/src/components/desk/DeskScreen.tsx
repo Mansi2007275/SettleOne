@@ -12,6 +12,7 @@ import { demoInvoice, type DemoFill } from "@/lib/demoInvoice";
 import { MAX_INVOICES, invoicesToCsv, type Invoice } from "@/lib/invoice";
 import type { ScanPrefill } from "@/lib/invoiceScan";
 import { ticketStatus } from "@/lib/settlement";
+import { hasSummary, summarizeDesk } from "@/lib/summary";
 import {
   loadCrashSwitch,
   loadDesk,
@@ -23,10 +24,10 @@ import {
   saveSavedCsv,
   wipeDesk,
 } from "@/lib/storage";
-import { formatUsdc } from "@/lib/usdc";
 import { SetupNotice } from "@/components/layout/SetupNotice";
 import { CrashTest } from "./CrashTest";
 import { DemoInvoiceButton } from "./DemoInvoiceButton";
+import { DeskSummaryStrip } from "./DeskSummary";
 import { Hero } from "./Hero";
 import { HowItWorks } from "./HowItWorks";
 import { InvoiceComposer } from "./InvoiceComposer";
@@ -111,14 +112,16 @@ export function DeskScreen() {
     [desk, mounted, isConnected, onRightNetwork, settlements.byKey, settlements.loading, settlements.error, usdc.allowance],
   );
 
-  const paidCount = statuses.filter((s) => s.kind === "paid").length;
+  // Rolled up from the same chain-derived statuses the tickets show, never from local memory.
+  const summary = useMemo(
+    () => summarizeDesk(desk.map((invoice, i) => ({ invoice, status: statuses[i]! }))),
+    [desk, statuses],
+  );
+
   // Once the chain has confirmed a payment here, the three steps have been demonstrated for real.
-  const showHowItWorks = hydrated && !howItWorksDismissed && paidCount === 0;
-  const conflictCount = statuses.filter((s) => s.kind === "conflict").length;
-  const openTotal = desk.reduce((sum, inv, i) => {
-    const k = statuses[i]?.kind;
-    return k === "ready" || k === "approval" ? sum + inv.amount : sum;
-  }, 0n);
+  const showHowItWorks = hydrated && !howItWorksDismissed && summary.paidCount === 0;
+  // Only with a wallet on the right network has the contract actually been asked.
+  const showSummary = mounted && isConnected && onRightNetwork && hasSummary(summary);
 
   const savedMatches = desk.length > 0 && savedCsv === invoicesToCsv(desk);
 
@@ -167,20 +170,11 @@ export function DeskScreen() {
             {desk.length > 0 ? (
               <p className={styles.tally}>
                 {desk.length} invoice{desk.length === 1 ? "" : "s"}
-                {mounted && isConnected && onRightNetwork ? (
-                  <>
-                    , {paidCount} paid
-                    {conflictCount > 0 ? `, ${conflictCount} in conflict` : ""}
-                    {openTotal > 0n ? (
-                      <>
-                        , <span className="mono">{formatUsdc(openTotal)}</span> USDC still to pay
-                      </>
-                    ) : null}
-                  </>
-                ) : null}
               </p>
             ) : null}
           </header>
+
+          {showSummary ? <DeskSummaryStrip summary={summary} /> : null}
 
           {crashArmed ? (
             <p className={styles.armed} role="status">
