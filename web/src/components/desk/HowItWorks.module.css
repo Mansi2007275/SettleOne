@@ -1,0 +1,118 @@
+/*
+ * The three-step strip under the hero, for someone seeing the desk for the first time.
+ * Each step is a small ticket: notched perforation, dashed fold, and a stub carrying its number.
+ */
+
+.strip {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.head h2 {
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+  font-stretch: 85%;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  --stub: 54px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--stub);
+  border: var(--border);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 5px 5px 0 var(--shadow-color);
+}
+
+/* the notches where the perforation meets the edges, as on a real ticket */
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  right: calc(var(--stub) - 9px);
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--page);
+}
+
+.card::before {
+  top: -11px;
+  clip-path: inset(50% -4px -4px -4px);
+}
+
+.card::after {
+  bottom: -11px;
+  clip-path: inset(-4px -4px 50% -4px);
+}
+
+.body {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 14px 14px 16px;
+  border-right: 3px dashed var(--ink);
+}
+
+.step {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.text {
+  font-weight: 700;
+  font-stretch: 88%;
+  font-size: 1rem;
+  line-height: 1.22;
+  text-wrap: pretty;
+}
+
+.stub {
+  display: grid;
+  place-items: center;
+}
+
+/* the stub's punched hole, with the step number sitting in it */
+.punch {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--page);
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+@media (max-width: 820px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

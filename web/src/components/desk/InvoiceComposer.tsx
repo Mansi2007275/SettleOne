@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { settleOnceAddress } from "@/config/env";
+import type { DemoFill } from "@/lib/demoInvoice";
 import { shortHex } from "@/lib/explorer";
 import {
   deriveInvoiceKey,
@@ -13,6 +14,7 @@ import {
   type InvoiceInput,
 } from "@/lib/invoice";
 import { scanMarks, type ScanMark, type ScanPrefill } from "@/lib/invoiceScan";
+import { DemoInvoiceButton } from "./DemoInvoiceButton";
 import styles from "./Bench.module.css";
 
 const EMPTY: InvoiceInput = { vendorRef: "", invoiceRef: "", recipient: "", amount: "" };
@@ -23,12 +25,18 @@ export function InvoiceComposer({
   desk,
   full,
   prefill,
+  demoFill,
+  connected,
   onAdd,
+  onDemoFill,
 }: {
   desk: Invoice[];
   full: boolean;
   prefill?: ScanPrefill | null;
+  demoFill?: DemoFill | null;
+  connected: boolean;
   onAdd: (invoice: Invoice) => void;
+  onDemoFill: () => void;
 }) {
   const id = useId();
   const [form, setForm] = useState<InvoiceInput>(EMPTY);
@@ -36,6 +44,7 @@ export function InvoiceComposer({
   const [notice, setNotice] = useState<string | null>(null);
   // Which fields the scanner filled in, and how sure it was. Cleared as soon as the user types.
   const [marks, setMarks] = useState<Marks>({});
+  const recipientRef = useRef<HTMLInputElement>(null);
 
   // A scan only ever pre-fills this form. It never derives a key, adds an invoice or pays.
   useEffect(() => {
@@ -51,6 +60,20 @@ export function InvoiceComposer({
     setErrors({});
     setNotice(null);
   }, [prefill]);
+
+  // The demo button fills the same form, with no scan marks: nothing here came off an image.
+  useEffect(() => {
+    if (!demoFill) return;
+    setForm(demoFill.input);
+    setMarks({});
+    setErrors({});
+    if (demoFill.input.recipient) {
+      setNotice("Demo invoice filled in. Review it, then press Add to desk.");
+    } else {
+      setNotice("Demo invoice filled in. Add the wallet to pay, then press Add to desk.");
+      recipientRef.current?.focus();
+    }
+  }, [demoFill]);
 
   const previewKey = useMemo(() => {
     if (!normalizeRef(form.vendorRef) || !normalizeRef(form.invoiceRef)) return null;
@@ -91,7 +114,12 @@ export function InvoiceComposer({
     name: keyof InvoiceInput,
     label: string,
     placeholder: string,
-    opts: { mono?: boolean; hint?: string; inputMode?: "decimal" } = {},
+    opts: {
+      mono?: boolean;
+      hint?: string;
+      inputMode?: "decimal";
+      inputRef?: React.RefObject<HTMLInputElement | null>;
+    } = {},
   ) => {
     const mark = marks[name];
     const fromImage = mark !== undefined && mark !== "missing";
@@ -111,6 +139,7 @@ export function InvoiceComposer({
           {fromImage ? <span className={styles.fromImage}>from image</span> : null}
         </label>
         <input
+          ref={opts.inputRef}
           id={`${id}-${name}`}
           name={name}
           value={form[name]}
@@ -145,13 +174,14 @@ export function InvoiceComposer({
   return (
     <form className={`panel ${styles.composer}`} onSubmit={submit} noValidate aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>Write an invoice</h2>
+      <DemoInvoiceButton connected={connected} onFill={onDemoFill} />
       <div className={styles.pair}>
         {field("vendorRef", "Vendor reference", "VENDOR-7", {
           hint: "Who issued it. Stays the same on every invoice from them.",
         })}
         {field("invoiceRef", "Invoice number", "INV-1042", { hint: "Exactly as printed on the invoice." })}
       </div>
-      {field("recipient", "Pay to wallet", "0x…", { mono: true })}
+      {field("recipient", "Pay to wallet", "0x…", { mono: true, inputRef: recipientRef })}
       {recipientFromImage ? (
         <p className={styles.compare}>Compare this address with the invoice character by character.</p>
       ) : null}
