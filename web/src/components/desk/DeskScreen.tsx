@@ -8,22 +8,27 @@ import { useMounted } from "@/hooks/useMounted";
 import { usePayInvoice } from "@/hooks/usePayInvoice";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useUsdcAccount } from "@/hooks/useUsdcAccount";
+import { demoInvoice, type DemoFill } from "@/lib/demoInvoice";
 import { MAX_INVOICES, invoicesToCsv, type Invoice } from "@/lib/invoice";
 import type { ScanPrefill } from "@/lib/invoiceScan";
 import { ticketStatus } from "@/lib/settlement";
 import {
   loadCrashSwitch,
   loadDesk,
+  loadHowItWorksDismissed,
   loadSavedCsv,
   saveCrashSwitch,
   saveDesk,
+  saveHowItWorksDismissed,
   saveSavedCsv,
   wipeDesk,
 } from "@/lib/storage";
 import { formatUsdc } from "@/lib/usdc";
 import { SetupNotice } from "@/components/layout/SetupNotice";
 import { CrashTest } from "./CrashTest";
+import { DemoInvoiceButton } from "./DemoInvoiceButton";
 import { Hero } from "./Hero";
+import { HowItWorks } from "./HowItWorks";
 import { InvoiceComposer } from "./InvoiceComposer";
 import { InvoiceFileBench } from "./InvoiceFileBench";
 import { InvoiceScanner } from "./InvoiceScanner";
@@ -41,11 +46,14 @@ export function DeskScreen() {
   const [crashArmed, setCrashArmed] = useState(false);
   const [savedCsv, setSavedCsv] = useState<string | null>(null);
   const [prefill, setPrefill] = useState<ScanPrefill | null>(null);
+  const [demoFill, setDemoFill] = useState<DemoFill | null>(null);
+  const [howItWorksDismissed, setHowItWorksDismissed] = useState(false);
 
   useEffect(() => {
     setDesk(loadDesk());
     setCrashArmed(loadCrashSwitch());
     setSavedCsv(loadSavedCsv());
+    setHowItWorksDismissed(loadHowItWorksDismissed());
     setHydrated(true);
   }, []);
 
@@ -76,6 +84,17 @@ export function DeskScreen() {
 
   const payment = usePayInvoice({ onDone: refreshAll, onSent });
 
+  // Fills the composer only: the invoice is added, approved and paid by hand like any other.
+  // With no wallet connected the recipient is left empty, and the composer focuses it.
+  const fillDemoInvoice = useCallback(() => {
+    setDemoFill({ input: demoInvoice(address), at: Date.now() });
+  }, [address]);
+
+  const dismissHowItWorks = useCallback(() => {
+    setHowItWorksDismissed(true);
+    saveHowItWorksDismissed(true);
+  }, []);
+
   const statuses = useMemo(
     () =>
       desk.map((invoice) =>
@@ -93,6 +112,8 @@ export function DeskScreen() {
   );
 
   const paidCount = statuses.filter((s) => s.kind === "paid").length;
+  // Once the chain has confirmed a payment here, the three steps have been demonstrated for real.
+  const showHowItWorks = hydrated && !howItWorksDismissed && paidCount === 0;
   const conflictCount = statuses.filter((s) => s.kind === "conflict").length;
   const openTotal = desk.reduce((sum, inv, i) => {
     const k = statuses[i]?.kind;
@@ -104,6 +125,7 @@ export function DeskScreen() {
   return (
     <div className="shell">
       <Hero />
+      {showHowItWorks ? <HowItWorks onDismiss={dismissHowItWorks} /> : null}
       <SetupNotice problems={configProblems} />
 
       <div className={styles.desk}>
@@ -113,7 +135,10 @@ export function DeskScreen() {
             desk={desk}
             full={desk.length >= MAX_INVOICES}
             prefill={prefill}
+            demoFill={demoFill}
+            connected={mounted && isConnected}
             onAdd={(inv) => setDesk((d) => [...d, inv])}
+            onDemoFill={fillDemoInvoice}
           />
           <InvoiceFileBench
             desk={desk}
@@ -170,6 +195,7 @@ export function DeskScreen() {
                 Write an invoice in the workbench, or load the invoice file you saved earlier. Paid invoices come back
                 marked as paid.
               </p>
+              <DemoInvoiceButton connected={mounted && isConnected} onFill={fillDemoInvoice} align="center" />
             </div>
           ) : (
             <ol className={styles.tickets}>

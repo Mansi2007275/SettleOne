@@ -1,0 +1,20 @@
+/* Shown twice: above the composer fields (left-aligned) and in the empty desk (centred). */
+
+.demo {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+
+.demo[data-align="center"] {
+  justify-items: center;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+
+.demo[data-align="center"] .hint {
+  text-align: center;
+}
