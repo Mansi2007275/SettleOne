@@ -58,6 +58,27 @@ export function saveSavedCsv(csv: string): void {
   }
 }
 
+const HOW_IT_WORKS_KEY = "settleonce.how-it-works-dismissed.v1";
+
+/** Whether the reader has pressed "Got it" on the how-it-works strip in this browser. */
+export function loadHowItWorksDismissed(): boolean {
+  try {
+    return window.localStorage.getItem(HOW_IT_WORKS_KEY) === "1";
+  } catch {
+    /* storage can be unavailable (private mode); the strip just shows again next time */
+    return false;
+  }
+}
+
+export function saveHowItWorksDismissed(dismissed: boolean): void {
+  try {
+    if (dismissed) window.localStorage.setItem(HOW_IT_WORKS_KEY, "1");
+    else window.localStorage.removeItem(HOW_IT_WORKS_KEY);
+  } catch {
+    /* the strip still hides for this page view, it just won't be remembered */
+  }
+}
+
 export function loadCrashSwitch(): boolean {
   try {
     return window.localStorage.getItem(CRASH_KEY) === "1";
