@@ -7,6 +7,7 @@
 /* A till receipt: manila slip, torn zigzag bottom edge */
 .slip {
   --tooth: 14px;
+  --link-hover: var(--accent-ink);
   position: relative;
   display: grid;
   gap: 18px;
@@ -14,9 +15,10 @@
   padding: 32px clamp(18px, 4vw, 36px) calc(36px + var(--tooth));
   border: var(--border);
   border-bottom: 0;
-  background: var(--manila);
+  background: var(--paper);
   color: var(--ink);
-  filter: drop-shadow(8px 8px 0 var(--bench-deep));
+  filter: drop-shadow(8px 8px 0 var(--shadow-color));
+  /* the #000 / #0000 below are mask alpha, not paint: they cut the torn edge */
   -webkit-mask:
     conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--tooth) * 2)
       var(--tooth) repeat-x,
@@ -62,11 +64,11 @@
 }
 
 .refs span[data-ok="yes"] {
-  color: #8a3a00;
+  color: var(--accent-ink);
 }
 
 .refs span[data-ok="no"] {
-  color: var(--alarm);
+  color: var(--alarm-ink);
 }
 
 .lines {
@@ -81,7 +83,7 @@
   gap: 12px;
   align-items: baseline;
   padding-bottom: 10px;
-  border-bottom: 1px dotted rgb(28 15 6 / 0.35);
+  border-bottom: 1px dotted var(--hairline);
 }
 
 .lines dt {
@@ -99,7 +101,7 @@
 }
 
 .lines a:hover {
-  color: var(--signal-press);
+  color: var(--accent-ink);
 }
 
 .amount {
@@ -115,8 +117,8 @@
 
 .stampRow :global(.stamp) {
   font-size: 1.7rem;
-  color: var(--signal-press);
-  border-color: var(--signal-press);
+  color: var(--accent-ink);
+  border-color: var(--accent-ink);
 }
 
 .fine {

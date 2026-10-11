@@ -1,0 +1,28 @@
+/* Square icon button in the header bar; everything else comes from the global .btn. */
+
+.toggle {
+  flex: none;
+  width: 44px;
+  padding: 0;
+}
+
+/*
+ * The icon is switched by CSS, not by React state, so the inline script in layout.tsx has
+ * already picked the right one before the first paint. Light theme shows the moon (where the
+ * press goes); dark shows the sun.
+ */
+.sun {
+  display: none;
+}
+
+.moon {
+  display: block;
+}
+
+[data-theme="dark"] .sun {
+  display: block;
+}
+
+[data-theme="dark"] .moon {
+  display: none;
+}

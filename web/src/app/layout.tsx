@@ -7,6 +7,7 @@ import { Providers } from "@/components/Providers";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { chain } from "@/config/env";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: {
@@ -18,13 +19,23 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2b1709",
-  colorScheme: "dark",
+  // Must track --page in globals.css for each theme.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6ebda" },
+    { media: "(prefers-color-scheme: dark)", color: "#2b1709" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    // The inline script adds data-theme before React hydrates, so the attribute it writes is
+    // expected to differ from the server HTML.
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Runs before the first paint: picks the theme with no flash of the wrong one. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body>
         <Providers>
           <SiteHeader />

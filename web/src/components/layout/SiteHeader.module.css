@@ -2,8 +2,8 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 3px solid var(--bench-deep);
-  background: var(--bench);
+  border-bottom: 3px solid var(--rule);
+  background: var(--page);
 }
 
 .bar {
@@ -17,7 +17,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: var(--manila);
+  color: var(--heading);
   font-weight: 800;
   font-stretch: 85%;
   font-size: 1.35rem;
@@ -26,7 +26,7 @@
 }
 
 .brand:hover {
-  color: var(--manila);
+  color: var(--heading);
 }
 
 .nav {
@@ -38,21 +38,21 @@
   padding: 6px 10px;
   border: 2px solid transparent;
   border-radius: 3px;
-  color: var(--peach);
+  color: var(--text);
   font-weight: 600;
   text-decoration: none;
 }
 
 .navLink:hover {
-  color: var(--manila);
-  border-color: var(--bench-line-strong);
+  color: var(--heading);
+  border-color: var(--edge-soft);
 }
 
 .navLink[aria-current="page"] {
   border-color: var(--ink);
-  background: var(--manila);
+  background: var(--paper);
   color: var(--ink);
-  box-shadow: 3px 3px 0 var(--bench-deep);
+  box-shadow: 3px 3px 0 var(--shadow-color);
 }
 
 .right {

@@ -5,10 +5,10 @@ export function SiteFooter() {
   return (
     <footer
       style={{
-        borderTop: "3px solid var(--bench-deep)",
-        background: "var(--bench)",
+        borderTop: "3px solid var(--rule)",
+        background: "var(--page)",
         padding: "28px 0 40px",
-        color: "var(--peach-dim)",
+        color: "var(--text-dim)",
         fontSize: "0.88rem",
       }}
     >

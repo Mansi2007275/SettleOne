@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PunchMark } from "@/components/brand/PunchMark";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { NetworkBadge } from "@/components/wallet/NetworkBadge";
 import { WalletButton } from "@/components/wallet/WalletButton";
 import styles from "./SiteHeader.module.css";
@@ -37,6 +38,7 @@ export function SiteHeader() {
             );
           })}
         </nav>
+        <ThemeToggle />
         <div className={styles.right}>
           <NetworkBadge />
           <WalletButton />

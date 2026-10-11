@@ -22,7 +22,7 @@
 
 .lede {
   max-width: 58ch;
-  color: var(--peach);
+  color: var(--text);
   font-size: clamp(1rem, 1.4vw, 1.12rem);
   line-height: 1.6;
 }
@@ -30,15 +30,17 @@
 /* The rule ticket: the one loud object on the page */
 .rule {
   --stub: 84px;
+  /* loud orange paper: a link inside it has to stay ink-dark to stay readable */
+  --link-hover: var(--ink);
   position: relative;
   display: grid;
   grid-template-columns: 1fr var(--stub);
   margin: 0;
   border: var(--border);
   border-radius: 12px;
-  background: var(--signal);
+  background: var(--accent);
   color: var(--ink);
-  box-shadow: 10px 10px 0 var(--bench-deep);
+  box-shadow: 10px 10px 0 var(--shadow-color);
   transform: rotate(-2.5deg);
 }
 
@@ -51,7 +53,7 @@
   height: 22px;
   border: 3px solid var(--ink);
   border-radius: 50%;
-  background: var(--bench);
+  background: var(--page);
 }
 
 .rule::before {
@@ -90,7 +92,7 @@
 }
 
 .ruleCaption a:hover {
-  color: var(--manila);
+  text-decoration-thickness: 3px;
 }
 
 .ruleStub {
@@ -103,8 +105,8 @@
   height: 40px;
   border: 3px solid var(--ink);
   border-radius: 50%;
-  background: var(--bench);
-  box-shadow: inset 4px 4px 0 var(--bench-deep);
+  background: var(--page);
+  box-shadow: inset 4px 4px 0 var(--hole-shade);
 }
 
 @media (max-width: 860px) {
