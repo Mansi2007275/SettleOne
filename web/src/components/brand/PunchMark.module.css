@@ -1,0 +1,15 @@
+/* SVG presentation attributes don't resolve var(), so the mark takes its colour from CSS. */
+
+.paper {
+  fill: var(--paper);
+  stroke: var(--ink);
+}
+
+.line {
+  stroke: var(--ink);
+}
+
+.hole {
+  fill: var(--accent);
+  stroke: var(--ink);
+}

@@ -3,6 +3,7 @@
 }
 
 .menu {
+  --link-hover: var(--accent-ink);
   position: absolute;
   right: 0;
   top: calc(100% + 10px);
@@ -13,9 +14,9 @@
   padding: 8px;
   border: var(--border);
   border-radius: 3px;
-  background: var(--manila);
+  background: var(--paper);
   color: var(--ink);
-  box-shadow: 6px 6px 0 var(--bench-deep);
+  box-shadow: 6px 6px 0 var(--shadow-color);
 }
 
 .menuItem {
@@ -38,7 +39,7 @@
 .menuItem:hover,
 .menuItem:focus-visible {
   background: var(--ink);
-  color: var(--manila);
+  color: var(--on-ink);
 }
 
 .menuItem img {
@@ -66,7 +67,7 @@
   height: 10px;
   border: 2px solid var(--ink);
   border-radius: 50%;
-  background: var(--signal);
+  background: var(--accent);
 }
 
 .inlineError {
@@ -77,8 +78,8 @@
   max-width: min(320px, calc(100vw - 32px));
   padding: 8px 10px;
   border: 2px solid var(--ink);
-  background: var(--alarm);
-  color: var(--manila);
+  background: var(--alarm-fill);
+  color: var(--on-ink);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -88,9 +89,9 @@
   align-items: center;
   gap: 8px;
   padding: 5px 10px;
-  border: 2px solid var(--bench-line-strong);
+  border: 2px solid var(--edge-soft);
   border-radius: 999px;
-  color: var(--peach);
+  color: var(--text);
   font-weight: 600;
   font-size: 0.85rem;
   white-space: nowrap;
@@ -104,23 +105,23 @@
 }
 
 .network[data-state="live"] .networkDot {
-  background: var(--signal);
-  box-shadow: 0 0 0 3px rgb(255 107 26 / 0.25);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 .network[data-state="mismatch"] {
-  border-color: var(--highlighter);
+  border-color: var(--warn-ink);
 }
 
 .network[data-state="mismatch"] .networkDot {
-  background: var(--highlighter);
+  background: var(--warn-ink);
 }
 
 .network[data-network="mainnet"] {
-  border-color: var(--signal);
+  border-color: var(--accent);
 }
 
 .networkWarn {
-  color: var(--highlighter);
+  color: var(--warn-ink);
   font-size: 0.78rem;
 }

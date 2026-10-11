@@ -19,21 +19,21 @@
 
 .keyPreview {
   padding: 10px 12px;
-  border: 2px dashed var(--peach-dim);
+  border: 2px dashed var(--edge);
   border-radius: 3px;
-  color: var(--peach);
+  color: var(--text);
   font-size: 0.85rem;
 }
 
 .keyPreview :global(.mono) {
-  color: var(--manila);
+  color: var(--heading);
 }
 
 .notice {
   padding: 8px 10px;
-  border-left: 6px solid var(--highlighter);
-  background: var(--bench-deep);
-  color: var(--manila);
+  border-left: 6px solid var(--warn-ink);
+  background: var(--well);
+  color: var(--heading);
   font-size: 0.88rem;
 }
 
@@ -60,13 +60,13 @@
   content: "";
   width: 10px;
   height: 10px;
-  border: 2px solid var(--bench-deep);
+  border: 2px solid var(--panel-border);
   border-radius: 2px;
   background: var(--hold);
 }
 
 .saveState[data-saved="yes"]::before {
-  background: var(--signal);
+  background: var(--accent);
 }
 
 .saveState[data-saved="no"]::before {
@@ -77,16 +77,16 @@
   display: grid;
   gap: 6px;
   padding: 10px 12px;
-  border: 2px solid var(--bench-deep);
-  background: var(--bench-deep);
-  color: var(--manila);
+  border: 2px solid var(--panel-border);
+  background: var(--well);
+  color: var(--heading);
   font-size: 0.88rem;
 }
 
 .report ul {
   margin: 0;
   padding-left: 18px;
-  color: #ff9c90;
+  color: var(--alarm-text);
 }
 
 .wallet {
@@ -98,7 +98,7 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  color: var(--manila);
+  color: var(--heading);
   font-weight: 700;
 }
 
@@ -117,7 +117,7 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  color: var(--manila);
+  color: var(--heading);
   font-weight: 700;
   cursor: pointer;
 }
@@ -136,7 +136,7 @@
   height: 28px;
   border: 3px solid var(--ink);
   border-radius: 999px;
-  background: var(--manila);
+  background: var(--paper);
 }
 
 .toggleThumb {
@@ -161,7 +161,7 @@
 }
 
 .toggle input:focus-visible + .toggleTrack {
-  outline: 3px solid var(--highlighter);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -186,24 +186,24 @@
   gap: 6px;
   justify-items: center;
   padding: 18px 14px;
-  border: 3px dashed var(--peach-dim);
+  border: 3px dashed var(--edge);
   border-radius: 3px;
-  background: var(--bench-deep);
+  background: var(--well);
   text-align: center;
 }
 
 .scanDrop[data-drag="yes"] {
-  border-color: var(--signal);
+  border-color: var(--accent);
   border-style: solid;
 }
 
 .scanDropText {
-  color: var(--manila);
+  color: var(--heading);
   font-weight: 700;
 }
 
 .scanDropHint {
-  color: var(--peach-dim);
+  color: var(--text-dim);
   font-size: 0.82rem;
 }
 
@@ -221,7 +221,7 @@
   border: 3px solid var(--ink);
   border-radius: 3px;
   object-fit: contain;
-  background: var(--manila);
+  background: var(--paper);
 }
 
 .scanProgress {
@@ -233,14 +233,14 @@
   height: 16px;
   border: 3px solid var(--ink);
   border-radius: 999px;
-  background: var(--manila);
+  background: var(--paper);
   overflow: hidden;
 }
 
 .scanBar {
   display: block;
   height: 100%;
-  background: var(--signal);
+  background: var(--accent);
   transition: width 160ms linear;
 }
 
@@ -252,36 +252,36 @@
 }
 
 .scanStatus {
-  color: var(--peach);
+  color: var(--text);
   font-size: 0.85rem;
   font-weight: 600;
 }
 
 .scanReport {
   padding: 8px 10px;
-  border-left: 6px solid var(--signal);
-  background: var(--bench-deep);
-  color: var(--manila);
+  border-left: 6px solid var(--accent);
+  background: var(--well);
+  color: var(--heading);
   font-size: 0.88rem;
 }
 
 .scanError {
   padding: 8px 10px;
   border-left: 6px solid var(--alarm);
-  background: var(--bench-deep);
-  color: #ff9c90;
+  background: var(--well);
+  color: var(--alarm-text);
   font-size: 0.88rem;
 }
 
 .scanRaw {
-  border: 2px solid var(--bench-deep);
+  border: 2px solid var(--panel-border);
   border-radius: 3px;
-  background: var(--bench-deep);
+  background: var(--well);
 }
 
 .scanRaw summary {
   padding: 8px 10px;
-  color: var(--peach);
+  color: var(--text);
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -292,7 +292,7 @@
   margin: 0;
   padding: 0 10px 10px;
   overflow: auto;
-  color: var(--manila-dim);
+  color: var(--text-dim);
   font-family: var(--font-mono);
   font-size: 0.74rem;
   font-stretch: 82%;
@@ -307,7 +307,7 @@
   padding: 1px 6px;
   border: 2px solid var(--ink);
   border-radius: 2px;
-  background: var(--peach-dim);
+  background: var(--tag);
   color: var(--ink);
   font-size: 0.68rem;
   font-weight: 700;
@@ -317,22 +317,22 @@
 }
 
 .checkThis {
-  color: var(--highlighter);
+  color: var(--warn-ink);
   font-size: 0.85rem;
   font-weight: 700;
 }
 
 .composer :global(.field[data-check="yes"] input) {
-  border-color: var(--highlighter);
-  box-shadow: 3px 3px 0 var(--highlighter);
+  border-color: var(--warn-ink);
+  box-shadow: 3px 3px 0 var(--warn-ink);
 }
 
 .compare {
   margin-top: -6px;
   padding: 6px 10px;
-  border-left: 6px solid var(--highlighter);
-  background: var(--bench-deep);
-  color: var(--manila);
+  border-left: 6px solid var(--warn-ink);
+  background: var(--well);
+  color: var(--heading);
   font-size: 0.84rem;
   font-weight: 600;
 }
