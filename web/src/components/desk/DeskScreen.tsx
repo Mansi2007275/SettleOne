@@ -199,6 +199,7 @@ export function DeskScreen() {
                     invoice={invoice}
                     status={statuses[i]!}
                     payer={address}
+                    balance={usdc.balance}
                     step={payment.active?.key === invoice.key ? payment.active.step : null}
                     outcome={payment.outcomes[invoice.key]}
                     otherBusy={payment.busy}
