@@ -9,6 +9,7 @@ import { usePayInvoice } from "@/hooks/usePayInvoice";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useUsdcAccount } from "@/hooks/useUsdcAccount";
 import { MAX_INVOICES, invoicesToCsv, type Invoice } from "@/lib/invoice";
+import type { ScanPrefill } from "@/lib/invoiceScan";
 import { ticketStatus } from "@/lib/settlement";
 import {
   loadCrashSwitch,
@@ -25,6 +26,7 @@ import { CrashTest } from "./CrashTest";
 import { Hero } from "./Hero";
 import { InvoiceComposer } from "./InvoiceComposer";
 import { InvoiceFileBench } from "./InvoiceFileBench";
+import { InvoiceScanner } from "./InvoiceScanner";
 import { InvoiceTicket } from "./InvoiceTicket";
 import { WalletPanel } from "./WalletPanel";
 import styles from "./DeskScreen.module.css";
@@ -38,6 +40,7 @@ export function DeskScreen() {
   const [hydrated, setHydrated] = useState(false);
   const [crashArmed, setCrashArmed] = useState(false);
   const [savedCsv, setSavedCsv] = useState<string | null>(null);
+  const [prefill, setPrefill] = useState<ScanPrefill | null>(null);
 
   useEffect(() => {
     setDesk(loadDesk());
@@ -105,7 +108,13 @@ export function DeskScreen() {
 
       <div className={styles.desk}>
         <aside className={styles.bench} aria-label="Workbench">
-          <InvoiceComposer desk={desk} full={desk.length >= MAX_INVOICES} onAdd={(inv) => setDesk((d) => [...d, inv])} />
+          <InvoiceScanner onScanned={(result) => setPrefill({ result, at: Date.now() })} />
+          <InvoiceComposer
+            desk={desk}
+            full={desk.length >= MAX_INVOICES}
+            prefill={prefill}
+            onAdd={(inv) => setDesk((d) => [...d, inv])}
+          />
           <InvoiceFileBench
             desk={desk}
             savedCsv={savedCsv}

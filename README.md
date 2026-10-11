@@ -59,9 +59,30 @@ invoice file (CSV) ──► invoice key ──► receiptsFor(payer, keys)  ─
 
 ## Pages
 
-- **Desk** (`/`): write invoices or load a CSV, connect a wallet, pay. Each invoice is a ticket; paying punches its stub. Includes a clearly labelled **crash test** that wipes the desk and reloads right after the wallet sends, so you can demonstrate recovery.
+- **Desk** (`/`): write invoices, load a CSV or **scan a photo of an invoice**, connect a wallet, pay. Each invoice is a ticket; paying punches its stub. Includes a clearly labelled **crash test** that wipes the desk and reloads right after the wallet sends, so you can demonstrate recovery.
 - **Receipt** (`/receipt/<payer>/<key>`): a public, wallet-free receipt read live from the contract.
 - **Ledger** (`/ledger`): every `InvoicePaid` event, newest first, plus a lookup form.
+
+## Scan invoice (optional)
+
+Typing a wallet address off a paper invoice is where a payment goes wrong. The desk can read the
+invoice for you instead:
+
+1. **Scan invoice** → drop a JPG/PNG/WebP (up to 8 MB) or use your phone camera.
+2. OCR runs **inside the browser tab** with [tesseract.js](https://github.com/naptha/tesseract.js) (pinned, loaded as its own chunk only when you open the scanner). The image is never uploaded, and there is no backend and no API key. Only the English language data is fetched, once, from a CDN.
+3. The *existing* form is pre-filled. Each field it filled is tagged **from image**; anything missing or unverified is highlighted yellow with **Check this**. A **Text we read** box shows the raw OCR output so you can copy from it.
+4. **You** review and press **Add to desk**. Nothing is ever added or paid automatically.
+
+The parser never guesses: a field it cannot read with evidence stays empty. It fixes only the three
+characters OCR actually confuses in a wallet address (`O`→`0`, `l`/`I`→`1`), only inside the `0x`
+token, and only keeps the result if viem accepts it. A valid EIP-55 checksum marks the address
+confirmed; a mixed-case address whose checksum fails is flagged, never silently corrected. Because
+an address can still be wrong in a way no checksum catches, the form asks you to compare it with
+the paper character by character.
+
+Scanning changes nothing below it: the invoice key is still
+`keccak256(abi.encode("settleonce.invoice.v1", vendorRef, invoiceRef))`, and the approve-then-pay
+flow and the contract are untouched.
 
 ## Repository layout
 
@@ -73,9 +94,9 @@ contracts/           Foundry project
   script/DeploySettleOnce.s.sol     deploys against Arc USDC, writes deployments/<network>.json
 web/                 Next.js 15 + wagmi + viem app
   src/config/        Arc chains, env, wagmi
-  src/lib/           invoice keys, CSV, USDC units, errors
+  src/lib/           invoice keys, CSV, USDC units, OCR field parsing, errors
   src/hooks/         settlement reads, pay flow, receipt tx lookup, ledger scan
-  src/components/    desk, receipt, ledger, wallet UI
+  src/components/    desk, invoice scanner, receipt, ledger, wallet UI
 deployments/         addresses written by the deploy script
 docs/                deploy guide, guarantee, verification record
 examples/            blank invoice file
@@ -105,6 +126,7 @@ npm run dev
 | `contracts/test/SettleOnce.t.sol` | Exact amount moves once; a fresh transaction with ample balance **and** allowance still hits `AlreadyPaid`; changed amount/recipient hits `SettlementConflict`; false-returning, reverting and blocklisted transfers leave the key unpaid and payable later; strangers can't spend a payer's allowance; per-payer scope; input validation; reentrancy; key derivation pinned against the web app |
 | `contracts/test/SettleOnce.invariant.t.sol` | Under random payers, keys, recipients, amounts and failing transfers: never more than one settlement per (payer, key); recipient balances equal recorded settlements; contract holds nothing |
 | `web/src/lib/invoice.test.ts` | Same key as Solidity; normalization; key ignores recipient/amount; 0.10 USDC = 100,000 units; CSV round-trip, reordering, duplicate and conflict detection |
+| `web/src/lib/invoiceScan.test.ts` | OCR text samples: clean invoice, missing wallet, `1,250.00` and `$1,250.00`, European separators, `O`/`l` repaired inside the address, subtotal vs total, two totals that disagree, no invoice number, Hindi/English labels, broken checksum, several addresses, unreadable text |
 
 Results are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
