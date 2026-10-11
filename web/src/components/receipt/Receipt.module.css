@@ -136,3 +136,15 @@
     gap: 2px;
   }
 }
+
+/* An address or hash with its copy button: the value wraps, the button stays put. */
+.copyRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.copyRow > a {
+  min-width: 0;
+}

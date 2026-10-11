@@ -11,6 +11,7 @@ import { addressUrl, blockUrl, txUrl } from "@/lib/explorer";
 import { deriveInvoiceKey, normalizeRef } from "@/lib/invoice";
 import { formatUsdc } from "@/lib/usdc";
 import { SetupNotice } from "@/components/layout/SetupNotice";
+import { CopyButton } from "@/components/ui/CopyButton";
 import styles from "./Receipt.module.css";
 
 export function ReceiptView({
@@ -68,9 +69,12 @@ export function ReceiptView({
             {invoiceKey}
           </Line>
           <Line label="Payer" mono>
-            <a href={addressUrl(payer)} target="_blank" rel="noreferrer">
-              {payer}
-            </a>
+            <span className={styles.copyRow}>
+              <a href={addressUrl(payer)} target="_blank" rel="noreferrer">
+                {payer}
+              </a>
+              <CopyButton variant="inline" label="Copy payer address" value={payer} />
+            </span>
           </Line>
 
           {read.isPending && settleOnceAddress ? <Line label="Status">Reading the contract…</Line> : null}
@@ -85,9 +89,12 @@ export function ReceiptView({
           {paid ? (
             <>
               <Line label="Paid to" mono>
-                <a href={addressUrl(s!.recipient)} target="_blank" rel="noreferrer">
-                  {s!.recipient}
-                </a>
+                <span className={styles.copyRow}>
+                  <a href={addressUrl(s!.recipient)} target="_blank" rel="noreferrer">
+                    {s!.recipient}
+                  </a>
+                  <CopyButton variant="inline" label="Copy recipient address" value={s!.recipient} />
+                </span>
               </Line>
               <Line label="Amount" mono>
                 <strong className={styles.amount}>{formatUsdc(s!.amount)} USDC</strong>
@@ -102,9 +109,12 @@ export function ReceiptView({
                 {tx.isPending ? (
                   "Looking up…"
                 ) : tx.data ? (
-                  <a href={txUrl(tx.data.hash)} target="_blank" rel="noreferrer">
-                    {tx.data.hash}
-                  </a>
+                  <span className={styles.copyRow}>
+                    <a href={txUrl(tx.data.hash)} target="_blank" rel="noreferrer">
+                      {tx.data.hash}
+                    </a>
+                    <CopyButton variant="inline" label="Copy transaction hash" value={tx.data.hash} />
+                  </span>
                 ) : tx.isError ? (
                   "Couldn't fetch the log right now"
                 ) : (

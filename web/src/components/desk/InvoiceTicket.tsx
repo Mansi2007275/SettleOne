@@ -9,6 +9,7 @@ import { shortHex, txUrl } from "@/lib/explorer";
 import type { Invoice } from "@/lib/invoice";
 import type { TicketStatus } from "@/lib/settlement";
 import { formatUsdc } from "@/lib/usdc";
+import { CopyButton } from "@/components/ui/CopyButton";
 import styles from "./InvoiceTicket.module.css";
 
 type Props = {
@@ -66,17 +67,20 @@ export function InvoiceTicket(props: Props) {
           </button>
         );
         break;
-      case "paid":
+      case "paid": {
         chip = { tone: "paid", text: "Paid" };
-        action = payer ? (
-          <Link
-            className="btn btn-small"
-            href={`/receipt/${payer}/${invoice.key}?v=${encodeURIComponent(invoice.vendorRef)}&i=${encodeURIComponent(invoice.invoiceRef)}`}
-          >
-            View receipt
-          </Link>
+        const path = payer ? receiptPath(payer, invoice) : null;
+        action = path ? (
+          <>
+            <Link className="btn btn-small" href={path}>
+              View receipt
+            </Link>
+            {/* Resolved on press: window.location doesn't exist when this is rendered on the server. */}
+            <CopyButton label="Copy receipt link" value={() => `${window.location.origin}${path}`} />
+          </>
         ) : null;
         break;
+      }
       case "conflict":
         chip = { tone: "danger", text: "Conflict" };
         action = payer ? (
@@ -196,6 +200,16 @@ export function InvoiceTicket(props: Props) {
       </div>
     </article>
   );
+}
+
+/**
+ * The public receipt page for this ticket, carrying the two references so the page can confirm
+ * they really do derive the key it is showing.
+ */
+function receiptPath(payer: Address, invoice: Invoice): string {
+  const v = encodeURIComponent(invoice.vendorRef);
+  const i = encodeURIComponent(invoice.invoiceRef);
+  return `/receipt/${payer}/${invoice.key}?v=${v}&i=${i}`;
 }
 
 /** True for a moment when this ticket turns paid while you watch. Already-paid tickets don't animate. */
