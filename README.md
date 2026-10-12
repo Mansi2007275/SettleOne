@@ -45,12 +45,15 @@ It does not cover the same real-world invoice entered under different references
 ```
 invoice file (CSV) ──► invoice key ──► receiptsFor(payer, keys)  ──► Paid / Conflict / Ready
                                              │
-                          unpaid ──► approve exact amount ──► simulate payOnce ──► payOnce
-                                                                                    │
+                          unpaid ──► allowance enough? ──► simulate payOnce ──► payOnce
+                                             │                                      │
+                                             └─ short ──► one batch: approve + payOnce (1 signature)
+                                                                │
                                      contract checks (payer, key) ─► record ─► USDC transferFrom payer → recipient
                                                                        └─ any failure reverts the record too
 ```
 
+- **One signature when the allowance is short.** `approve` and `payOnce` go out as a single transaction through Arc's [`Multicall3From`](https://docs.arc.io/arc/concepts/batched-transactions) predeploy (`0x522fAf9A91c41c443c66765030741e4AaCe147D0`). It routes each sub-call through Arc's `CallFrom` precompile, so **your wallet stays `msg.sender`**: USDC spends your own allowance and `InvoicePaid` names you as the payer, not the multicall contract. Both calls use `allowFailure: false`, so the batch is all-or-nothing — a duplicate still reverts, and the approval reverts with it, leaving no allowance behind. The batch is simulated from your account first; if it won't simulate, the desk falls back to the ordinary two-step approve-then-pay without you doing anything. When the allowance already covers the invoice, nothing is batched: it is one `payOnce`.
 - **No backend, no database.** Paid status always comes from the contract. The browser only keeps your desk for convenience.
 - **Funds never sit in the contract.** USDC moves payer → recipient inside one `transferFrom`.
 - **No admin.** No owner, no reset, no upgrade proxy, no arbitrary calls. USDC address is immutable.
@@ -126,6 +129,7 @@ npm run dev
 | `contracts/test/SettleOnce.t.sol` | Exact amount moves once; a fresh transaction with ample balance **and** allowance still hits `AlreadyPaid`; changed amount/recipient hits `SettlementConflict`; false-returning, reverting and blocklisted transfers leave the key unpaid and payable later; strangers can't spend a payer's allowance; per-payer scope; input validation; reentrancy; key derivation pinned against the web app |
 | `contracts/test/SettleOnce.invariant.t.sol` | Under random payers, keys, recipients, amounts and failing transfers: never more than one settlement per (payer, key); recipient balances equal recorded settlements; contract holds nothing |
 | `web/src/lib/invoice.test.ts` | Same key as Solidity; normalization; key ignores recipient/amount; 0.10 USDC = 100,000 units; CSV round-trip, reordering, duplicate and conflict detection |
+| `web/src/lib/batchPay.test.ts` | The one-signature batch: approve comes before `payOnce`, `allowFailure` is `false` on both, the approval is exactly the invoice amount and matches what is paid, the key/recipient/amount come from the invoice, zero amounts and USDC-as-spender are refused |
 | `web/src/lib/invoiceScan.test.ts` | OCR text samples: clean invoice, missing wallet, `1,250.00` and `$1,250.00`, European separators, `O`/`l` repaired inside the address, subtotal vs total, two totals that disagree, no invoice number, Hindi/English labels, broken checksum, several addresses, unreadable text |
 
 Results are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).

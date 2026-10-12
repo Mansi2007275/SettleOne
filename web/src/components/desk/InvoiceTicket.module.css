@@ -341,3 +341,23 @@
   padding-right: 0;
   padding-top: 0;
 }
+
+/*
+ * "1 signature": approve + pay go out as one batched transaction, so the wallet asks once.
+ * Sits on ticket paper, which is the same light tone in both themes, so --ink reads on it either way.
+ */
+.oneSig {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  background: var(--tag);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.74rem;
+  font-stretch: 85%;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
