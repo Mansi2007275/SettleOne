@@ -9,6 +9,7 @@ import type { PayOutcome, PayStep } from "@/hooks/usePayInvoice";
 import { shortHex, txUrl } from "@/lib/explorer";
 import { displayFeeUnits, shortfall } from "@/lib/funds";
 import type { Invoice } from "@/lib/invoice";
+import { receiptPath } from "@/lib/receiptExport";
 import type { TicketStatus } from "@/lib/settlement";
 import { formatUsdc } from "@/lib/usdc";
 import { CopyButton } from "@/components/ui/CopyButton";
@@ -81,7 +82,7 @@ export function InvoiceTicket(props: Props) {
         break;
       case "paid": {
         chip = { tone: "paid", text: "Paid" };
-        const path = payer ? receiptPath(payer, invoice) : null;
+        const path = payer ? receiptPath(payer, invoice.key, invoice) : null;
         action = path ? (
           <>
             <Link className="btn btn-small" href={path}>
@@ -249,16 +250,6 @@ export function InvoiceTicket(props: Props) {
       </div>
     </article>
   );
-}
-
-/**
- * The public receipt page for this ticket, carrying the two references so the page can confirm
- * they really do derive the key it is showing.
- */
-function receiptPath(payer: Address, invoice: Invoice): string {
-  const v = encodeURIComponent(invoice.vendorRef);
-  const i = encodeURIComponent(invoice.invoiceRef);
-  return `/receipt/${payer}/${invoice.key}?v=${v}&i=${i}`;
 }
 
 /** True for a moment when this ticket turns paid while you watch. Already-paid tickets don't animate. */

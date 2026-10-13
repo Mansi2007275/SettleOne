@@ -63,7 +63,11 @@ invoice file (CSV) ──► invoice key ──► receiptsFor(payer, keys)  ─
 ## Pages
 
 - **Desk** (`/`): write invoices, load a CSV or **scan a photo of an invoice**, connect a wallet, pay. Each invoice is a ticket; paying punches its stub. Includes a clearly labelled **crash test** that wipes the desk and reloads right after the wallet sends, so you can demonstrate recovery.
-- **Receipt** (`/receipt/<payer>/<key>`): a public, wallet-free receipt read live from the contract.
+- **Receipt** (`/receipt/<payer>/<key>`): a public, wallet-free receipt read live from the contract, with a QR
+  code of its own link. Once the contract says paid, **Download JSON** and **Download PDF** keep a copy: the
+  JSON carries the exact base units and the explorer links, the PDF is the slip itself, QR code and `PAID ONCE`
+  stamp included. Both are built in the tab — `jspdf` and `qrcode` are pinned and loaded as their own chunks,
+  nothing is uploaded, and there is still no backend.
 - **Ledger** (`/ledger`): every `InvoicePaid` event, newest first, plus a lookup form.
 
 ## Scan invoice (optional)
@@ -97,7 +101,7 @@ contracts/           Foundry project
   script/DeploySettleOnce.s.sol     deploys against Arc USDC, writes deployments/<network>.json
 web/                 Next.js 15 + wagmi + viem app
   src/config/        Arc chains, env, wagmi
-  src/lib/           invoice keys, CSV, USDC units, OCR field parsing, errors
+  src/lib/           invoice keys, CSV, USDC units, OCR field parsing, receipt export + QR, errors
   src/hooks/         settlement reads, pay flow, receipt tx lookup, ledger scan
   src/components/    desk, invoice scanner, receipt, ledger, wallet UI
 deployments/         addresses written by the deploy script
@@ -130,6 +134,9 @@ npm run dev
 | `contracts/test/SettleOnce.invariant.t.sol` | Under random payers, keys, recipients, amounts and failing transfers: never more than one settlement per (payer, key); recipient balances equal recorded settlements; contract holds nothing |
 | `web/src/lib/invoice.test.ts` | Same key as Solidity; normalization; key ignores recipient/amount; 0.10 USDC = 100,000 units; CSV round-trip, reordering, duplicate and conflict detection |
 | `web/src/lib/batchPay.test.ts` | The one-signature batch: approve comes before `payOnce`, `allowFailure` is `false` on both, the approval is exactly the invoice amount and matches what is paid, the key/recipient/amount come from the invoice, zero amounts and USDC-as-spender are refused |
+| `web/src/lib/receiptExport.test.ts` | The kept copy: every contract fact written out, amounts as exact base units, references only when they derive the key, filename slug and fallback to the short key, receipt link encoding, the PDF's line list |
+| `web/src/lib/qr.test.ts` | QR geometry: quiet zone, dark modules collapsed into runs and covered exactly once, path output, a matrix that doesn't add up is refused |
+| `web/src/lib/receiptPdf.test.ts` | PDF ink: theme tokens resolved per token, anything that isn't a plain hex falls back instead of silently printing black |
 | `web/src/lib/invoiceScan.test.ts` | OCR text samples: clean invoice, missing wallet, `1,250.00` and `$1,250.00`, European separators, `O`/`l` repaired inside the address, subtotal vs total, two totals that disagree, no invoice number, Hindi/English labels, broken checksum, several addresses, unreadable text |
 
 Results are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).
