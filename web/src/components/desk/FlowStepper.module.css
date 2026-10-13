@@ -1,0 +1,236 @@
+/*
+ * The six steps as a strip of tickets: the number punched into the stub, a dashed fold, hard shadow.
+ * The current step is the loud one (orange paper); a finished step keeps its tick and steps back.
+ */
+
+.flow {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+}
+
+.head h2 {
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+  font-stretch: 85%;
+}
+
+.tally {
+  color: var(--text-dim);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.head button {
+  margin-left: auto;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  --stub: 52px;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--stub) minmax(0, 1fr);
+  border: var(--border);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 5px 5px 0 var(--shadow-color);
+}
+
+/* paper stays light in both themes, so a link on it keeps ink-dark type */
+.step a {
+  color: var(--ink);
+  --link-hover: var(--accent-ink);
+}
+
+.step[data-state="current"] {
+  background: var(--accent);
+}
+
+.step[data-state="upcoming"] {
+  background: var(--paper-dim);
+}
+
+/* the notches where the perforation meets the edges, as on a real ticket */
+.step::before,
+.step::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--stub) - 9px);
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--page);
+}
+
+.step::before {
+  top: -11px;
+  clip-path: inset(50% -4px -4px -4px);
+}
+
+.step::after {
+  bottom: -11px;
+  clip-path: inset(-4px -4px 50% -4px);
+}
+
+/* the stub's punched hole, with the step number (or its tick) sitting in it */
+.punch {
+  display: grid;
+  place-items: center;
+  align-self: start;
+  justify-self: center;
+  width: 32px;
+  height: 32px;
+  margin-top: 16px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--page);
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.step[data-state="done"] .punch {
+  background: var(--ink);
+  color: var(--accent);
+}
+
+.body {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 16px 14px 14px 16px;
+  border-left: 3px dashed var(--ink);
+}
+
+.title {
+  color: var(--ink);
+  font-weight: 800;
+  font-stretch: 88%;
+  font-size: 1.02rem;
+  line-height: 1.16;
+}
+
+.help {
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 8px;
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.pending {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.flag {
+  position: absolute;
+  top: -12px;
+  right: 10px;
+  padding: 2px 8px 3px;
+  border: 3px solid var(--ink);
+  border-radius: 2px;
+  background: var(--page);
+  color: var(--ink);
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.step[data-state="done"] .flag {
+  background: var(--ink);
+  color: var(--accent);
+}
+
+.step[data-state="current"] .flag {
+  background: var(--highlighter);
+}
+
+/* ------------------------------------------------- the collapsed one-line bar */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 32px;
+  padding: 10px 14px;
+  border: var(--border);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 5px 5px 0 var(--shadow-color);
+}
+
+.barLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.barStep {
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.barTitle {
+  font-weight: 700;
+  font-stretch: 88%;
+}
+
+.barSep {
+  color: var(--ink-soft);
+}
+
+.bar button {
+  margin-left: auto;
+}
+
+@media (max-width: 1000px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .flag {
+    right: 8px;
+  }
+}

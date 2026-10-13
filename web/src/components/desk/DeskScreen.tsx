@@ -9,6 +9,7 @@ import { usePayInvoice } from "@/hooks/usePayInvoice";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useUsdcAccount } from "@/hooks/useUsdcAccount";
 import { demoInvoice, type DemoFill } from "@/lib/demoInvoice";
+import { flowProgress, pickLatestPaidKey } from "@/lib/flowProgress";
 import { MAX_INVOICES, invoicesToCsv, type Invoice } from "@/lib/invoice";
 import type { ScanPrefill } from "@/lib/invoiceScan";
 import { ticketStatus } from "@/lib/settlement";
@@ -16,11 +17,11 @@ import { hasSummary, summarizeDesk } from "@/lib/summary";
 import {
   loadCrashSwitch,
   loadDesk,
-  loadHowItWorksDismissed,
+  loadFlowCollapsed,
   loadSavedCsv,
   saveCrashSwitch,
   saveDesk,
-  saveHowItWorksDismissed,
+  saveFlowCollapsed,
   saveSavedCsv,
   wipeDesk,
 } from "@/lib/storage";
@@ -28,8 +29,8 @@ import { SetupNotice } from "@/components/layout/SetupNotice";
 import { CrashTest } from "./CrashTest";
 import { DemoInvoiceButton } from "./DemoInvoiceButton";
 import { DeskSummaryStrip } from "./DeskSummary";
+import { FlowStepper } from "./FlowStepper";
 import { Hero } from "./Hero";
-import { HowItWorks } from "./HowItWorks";
 import { InvoiceComposer } from "./InvoiceComposer";
 import { InvoiceFileBench } from "./InvoiceFileBench";
 import { InvoiceScanner } from "./InvoiceScanner";
@@ -48,13 +49,13 @@ export function DeskScreen() {
   const [savedCsv, setSavedCsv] = useState<string | null>(null);
   const [prefill, setPrefill] = useState<ScanPrefill | null>(null);
   const [demoFill, setDemoFill] = useState<DemoFill | null>(null);
-  const [howItWorksDismissed, setHowItWorksDismissed] = useState(false);
+  const [stepsCollapsed, setStepsCollapsed] = useState(false);
 
   useEffect(() => {
     setDesk(loadDesk());
     setCrashArmed(loadCrashSwitch());
     setSavedCsv(loadSavedCsv());
-    setHowItWorksDismissed(loadHowItWorksDismissed());
+    setStepsCollapsed(loadFlowCollapsed());
     setHydrated(true);
   }, []);
 
@@ -91,9 +92,9 @@ export function DeskScreen() {
     setDemoFill({ input: demoInvoice(address), at: Date.now() });
   }, [address]);
 
-  const dismissHowItWorks = useCallback(() => {
-    setHowItWorksDismissed(true);
-    saveHowItWorksDismissed(true);
+  const collapseSteps = useCallback((collapsed: boolean) => {
+    setStepsCollapsed(collapsed);
+    saveFlowCollapsed(collapsed);
   }, []);
 
   const statuses = useMemo(
@@ -118,22 +119,56 @@ export function DeskScreen() {
     [desk, statuses],
   );
 
-  // Once the chain has confirmed a payment here, the three steps have been demonstrated for real.
-  const showHowItWorks = hydrated && !howItWorksDismissed && summary.paidCount === 0;
   // Only with a wallet on the right network has the contract actually been asked.
-  const showSummary = mounted && isConnected && onRightNetwork && hasSummary(summary);
+  const walletReady = mounted && isConnected && onRightNetwork;
+  const showSummary = walletReady && hasSummary(summary);
 
   const savedMatches = desk.length > 0 && savedCsv === invoicesToCsv(desk);
+
+  // The newest paid invoice, from the settlements the contract returned — never from local memory.
+  const latestPaidKey = useMemo(
+    () =>
+      pickLatestPaidKey(
+        desk.flatMap((invoice, i) => {
+          const status = statuses[i]!;
+          return status.kind === "paid" ? [{ key: invoice.key, paidAtBlock: status.settlement.paidAtBlock }] : [];
+        }),
+      ),
+    [desk, statuses],
+  );
+
+  // What the reader still has to do. Paid count and receipt come from the chain-derived statuses.
+  const progress = useMemo(
+    () =>
+      flowProgress({
+        walletReady,
+        invoiceCount: desk.length,
+        unsaved: desk.length > 0 && !savedMatches,
+        paidCount: summary.paidCount,
+        latestPaidKey,
+      }),
+    [walletReady, desk.length, savedMatches, summary.paidCount, latestPaidKey],
+  );
 
   return (
     <div className="shell">
       <Hero />
-      {showHowItWorks ? <HowItWorks onDismiss={dismissHowItWorks} /> : null}
+      {hydrated ? (
+        <FlowStepper
+          progress={progress}
+          collapsed={stepsCollapsed}
+          onCollapsedChange={collapseSteps}
+          receiptHref={address && latestPaidKey ? `/receipt/${address}/${latestPaidKey}` : null}
+        />
+      ) : null}
       <SetupNotice problems={configProblems} />
 
       <div className={styles.desk}>
         <aside className={styles.bench} aria-label="Workbench">
-          <InvoiceScanner onScanned={(result) => setPrefill({ result, at: Date.now() })} />
+          {/* ids are the targets the progress steps scroll to */}
+          <div id="desk-add" className={styles.anchor}>
+            <InvoiceScanner onScanned={(result) => setPrefill({ result, at: Date.now() })} />
+          </div>
           <InvoiceComposer
             desk={desk}
             full={desk.length >= MAX_INVOICES}
@@ -143,17 +178,21 @@ export function DeskScreen() {
             onAdd={(inv) => setDesk((d) => [...d, inv])}
             onDemoFill={fillDemoInvoice}
           />
-          <InvoiceFileBench
-            desk={desk}
-            savedCsv={savedCsv}
-            onLoad={(loaded) => setDesk(loaded)}
-            onSaved={(csv) => {
-              saveSavedCsv(csv);
-              setSavedCsv(csv);
-            }}
-            onClear={() => setDesk([])}
-          />
-          <WalletPanel balance={usdc.balance} loading={usdc.loading} error={usdc.error} />
+          <div id="desk-file" className={styles.anchor}>
+            <InvoiceFileBench
+              desk={desk}
+              savedCsv={savedCsv}
+              onLoad={(loaded) => setDesk(loaded)}
+              onSaved={(csv) => {
+                saveSavedCsv(csv);
+                setSavedCsv(csv);
+              }}
+              onClear={() => setDesk([])}
+            />
+          </div>
+          <div id="desk-wallet" className={styles.anchor}>
+            <WalletPanel balance={usdc.balance} loading={usdc.loading} error={usdc.error} />
+          </div>
           <CrashTest
             on={crashArmed}
             canArm={savedMatches}
@@ -164,7 +203,7 @@ export function DeskScreen() {
           />
         </aside>
 
-        <section className={styles.rail} aria-labelledby="rail-title">
+        <section id="desk-tickets" className={`${styles.rail} ${styles.anchor}`} aria-labelledby="rail-title">
           <header className={styles.railHead}>
             <h2 id="rail-title">On the desk</h2>
             {desk.length > 0 ? (

@@ -1,0 +1,184 @@
+/*
+ * The long "how it works" read. Same desk furniture as everywhere else: paper tickets with a
+ * punched stub for the six steps, bolted-on panels for the guarantee and the limits.
+ */
+
+.page {
+  display: grid;
+  gap: clamp(28px, 4vw, 44px);
+  padding-block: clamp(32px, 5vw, 64px) 72px;
+}
+
+.head {
+  display: grid;
+  gap: 16px;
+  max-width: 68ch;
+}
+
+.kicker {
+  color: var(--text-dim);
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  max-width: 24ch;
+  font-size: clamp(2.1rem, 5vw, 3.6rem);
+  font-stretch: 82%;
+  font-weight: 800;
+  line-height: 0.97;
+  letter-spacing: -0.03em;
+}
+
+.lede {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.3vw, 1.1rem);
+  line-height: 1.6;
+}
+
+.steps {
+  display: grid;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  --stub: 64px;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--stub) minmax(0, 1fr);
+  border: var(--border);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 6px 6px 0 var(--shadow-color);
+}
+
+/* the notches where the perforation meets the edges */
+.step::before,
+.step::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--stub) - 10px);
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--page);
+}
+
+.step::before {
+  top: -12px;
+  clip-path: inset(50% -4px -4px -4px);
+}
+
+.step::after {
+  bottom: -12px;
+  clip-path: inset(-4px -4px 50% -4px);
+}
+
+.punch {
+  display: grid;
+  place-items: center;
+  align-self: start;
+  justify-self: center;
+  width: 38px;
+  height: 38px;
+  margin-top: 18px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--page);
+  font-weight: 800;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.stepBody {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 18px 20px 20px;
+  border-left: 3px dashed var(--ink);
+}
+
+.stepBody p {
+  max-width: 68ch;
+  font-size: 0.97rem;
+  line-height: 1.55;
+}
+
+.stepTitle {
+  color: var(--ink);
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-stretch: 85%;
+}
+
+/* ------------------------------------------------------------- panels */
+
+.panel {
+  display: grid;
+  gap: 12px;
+  padding: 22px 24px 24px;
+  border: 3px solid var(--panel-border);
+  border-radius: 2px;
+  background: var(--panel);
+  box-shadow: var(--shadow-panel);
+}
+
+.panel h2 {
+  font-size: clamp(1.3rem, 2.2vw, 1.6rem);
+  font-stretch: 86%;
+}
+
+.panel[data-tone="limits"] {
+  border-left: 12px solid var(--highlighter);
+}
+
+.rule {
+  padding: 12px 14px;
+  border: 3px solid var(--ink);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--ink);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-size: clamp(1rem, 1.6vw, 1.18rem);
+  line-height: 1.25;
+}
+
+.list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 22px;
+  max-width: 76ch;
+}
+
+.list li {
+  line-height: 1.5;
+}
+
+.note {
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+
+.cta {
+  display: flex;
+}
+
+@media (max-width: 520px) {
+  .step {
+    --stub: 52px;
+  }
+
+  .stepBody {
+    padding: 16px 16px 18px;
+  }
+}

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { chain, settleOnceAddress } from "@/config/env";
 import { addressUrl, shortHex } from "@/lib/explorer";
 import styles from "./Hero.module.css";
@@ -13,6 +14,9 @@ export function Hero() {
           SettleOnce sends USDC on Arc straight from your wallet to the person you owe. Each invoice carries a
           permanent key, and the contract turns away a second payment for it. Lost the tab mid-payment? Load your
           invoice file again and the chain shows what already went out.
+        </p>
+        <p className={styles.newHere}>
+          <Link href="/how">New here? See how it works &rarr;</Link>
         </p>
       </div>
 

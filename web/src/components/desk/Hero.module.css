@@ -27,6 +27,15 @@
   line-height: 1.6;
 }
 
+.newHere {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.newHere a {
+  text-decoration-thickness: 3px;
+}
+
 /* The rule ticket: the one loud object on the page */
 .rule {
   --stub: 84px;

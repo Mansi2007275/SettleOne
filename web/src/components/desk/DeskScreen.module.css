@@ -11,6 +11,11 @@
   gap: 24px;
 }
 
+/* A progress step links to one of these; the offset clears the sticky header. */
+.anchor {
+  scroll-margin-top: 88px;
+}
+
 .rail {
   display: grid;
   gap: 22px;
