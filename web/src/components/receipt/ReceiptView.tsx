@@ -4,14 +4,19 @@ import Link from "next/link";
 import type { Address, Hex } from "viem";
 import { useReadContract } from "wagmi";
 import { settleOnceAbi } from "@/abi/settleOnce";
-import { chain, configProblems, settleOnceAddress } from "@/config/env";
+import { chain, configProblems, explorerUrl, network, settleOnceAddress } from "@/config/env";
+import { useMounted } from "@/hooks/useMounted";
+import { useReceiptQr } from "@/hooks/useReceiptQr";
 import { useSettlementTx } from "@/hooks/useSettlementTx";
 import { explainError } from "@/lib/errors";
 import { addressUrl, blockUrl, txUrl } from "@/lib/explorer";
 import { deriveInvoiceKey, normalizeRef } from "@/lib/invoice";
+import { receiptPath } from "@/lib/receiptExport";
 import { formatUsdc } from "@/lib/usdc";
 import { SetupNotice } from "@/components/layout/SetupNotice";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { ReceiptExportButtons } from "./ReceiptExportButtons";
+import { ReceiptQr } from "./ReceiptQr";
 import styles from "./Receipt.module.css";
 
 export function ReceiptView({
@@ -44,6 +49,14 @@ export function ReceiptView({
         timeStyle: "short",
       })
     : null;
+
+  // The absolute link to this page. Only the browser knows the origin, so it waits for the mount
+  // rather than guessing one on the server and changing it afterwards.
+  const mounted = useMounted();
+  const receiptUrl = mounted
+    ? `${window.location.origin}${receiptPath(payer, invoiceKey, refsMatch ? claimedRefs : null)}`
+    : null;
+  const qr = useReceiptQr(receiptUrl);
 
   return (
     <div className={`shell ${styles.page}`}>
@@ -133,13 +146,34 @@ export function ReceiptView({
           ) : null}
         </dl>
 
-        {paid ? (
-          <div className={styles.stampRow}>
+        {/* The code is the link to this page, so it is there whether or not anything was paid. */}
+        <div className={styles.tail}>
+          <ReceiptQr matrix={qr.matrix} failed={qr.failed} />
+          {paid ? (
             <span className="stamp">
               PAID ONCE
               <small>BLOCK {s!.paidAtBlock.toString()}</small>
             </span>
-          </div>
+          ) : null}
+        </div>
+
+        {paid && settleOnceAddress && receiptUrl ? (
+          <ReceiptExportButtons
+            qr={qr.matrix}
+            facts={{
+              network,
+              chainName: chain.name,
+              chainId: chain.id,
+              contract: settleOnceAddress,
+              payer,
+              invoiceKey,
+              claimedRefs,
+              settlement: s!,
+              txHash: tx.data?.hash ?? null,
+              explorerUrl,
+              receiptUrl,
+            }}
+          />
         ) : null}
 
         <p className={styles.fine}>
