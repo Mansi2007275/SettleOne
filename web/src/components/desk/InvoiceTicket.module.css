@@ -123,6 +123,65 @@
   font-size: 0.88rem;
 }
 
+/* ---------------------------------------------------------------- wallet-change guard */
+
+/* The loudest thing on a ticket: the vendor's wallet is not the one it was last paid at. */
+.guard {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 3px solid var(--alarm);
+  border-left-width: 10px;
+  border-radius: 3px;
+  background: var(--paper-alert);
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.guard[data-confirmed="true"] {
+  border-color: var(--ink);
+  border-left-color: var(--highlighter);
+}
+
+.guardTitle {
+  color: var(--alarm-ink);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.guard[data-confirmed="true"] .guardTitle {
+  color: var(--ink);
+}
+
+.guardConfirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.guardConfirm input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--alarm-fill);
+  cursor: pointer;
+}
+
+.guardConfirm input:disabled {
+  cursor: default;
+}
+
+.guardNote {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
 .outcome {
   display: flex;
   justify-content: space-between;
