@@ -105,9 +105,13 @@ web/                 Next.js 15 + wagmi + viem app
   src/lib/           invoice keys, CSV, USDC units, OCR field parsing, receipt export + QR, errors
   src/hooks/         settlement reads, pay flow, receipt tx lookup, ledger scan
   src/components/    desk, invoice scanner, receipt, ledger, wallet UI
+sdk/                 settleonce-sdk: pay an invoice once from any app or AI agent (viem only)
+  src/invoiceKey.ts            the same key as the contract and the web app
+  src/settlement.ts            chain reads + the pure pay / already-paid / conflict decision
+  src/payOnce.ts               read chain, approve exactly, pay, wait, read back
 deployments/         addresses written by the deploy script
 docs/                deploy guide, guarantee, verification record
-examples/            blank invoice file
+examples/            blank invoice file, and agent-pay: a crash-safe paying agent
 ```
 
 ## Run it
@@ -138,10 +142,63 @@ npm run dev
 | `web/src/lib/receiptExport.test.ts` | The kept copy: every contract fact written out, amounts as exact base units, references only when they derive the key, filename slug and fallback to the short key, receipt link encoding, the PDF's line list |
 | `web/src/lib/qr.test.ts` | QR geometry: quiet zone, dark modules collapsed into runs and covered exactly once, path output, a matrix that doesn't add up is refused |
 | `web/src/lib/receiptPdf.test.ts` | PDF ink: theme tokens resolved per token, anything that isn't a plain hex falls back instead of silently printing black |
+| `sdk/src/invoiceKey.test.ts` | The SDK derives the same key as the contract: the pinned `VENDOR-7 / INV-1042` vector, normalization, references that must stay apart, and no collision between the two fields |
+| `sdk/src/amount.test.ts` | Strict amounts: `0.01` is 10,000 base units, commas / signs / exponents / 7 decimals / zero are all refused, and Arc's 20 gwei fee floor is applied even with no estimate |
+| `sdk/src/errors.test.ts` | Error mapping from real viem reverts: `AlreadyPaid` and `SettlementConflict` become statuses, everything else stays an error |
+| `sdk/src/settlement.test.ts` | The status decision: unpaid pays, same details is already-paid, a changed recipient or a one-unit amount change is a conflict, and block 0 is the only "never settled" |
 | `web/src/lib/flowProgress.test.ts` | The six-step stepper: each step's done rule, the current step is the first unfinished one, a later step can be done while an earlier one is open, the recovery tip never becomes the current step or blocks the one after it, and the newest paid receipt is picked by settlement block as a bigint |
 | `web/src/lib/invoiceScan.test.ts` | OCR text samples: clean invoice, missing wallet, `1,250.00` and `$1,250.00`, European separators, `O`/`l` repaired inside the address, subtotal vs total, two totals that disagree, no invoice number, Hindi/English labels, broken checksum, several addresses, unreadable text |
 
 Results are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).
+
+## Use SettleOnce from your app or AI agent
+
+The rule is not a feature of the web desk — it lives in the contract, so anything that can sign a
+transaction can use it. [`settleonce-sdk`](sdk) is that path: TypeScript, ESM, `viem` only.
+
+```ts
+import { createArcClients, payOnce } from "settleonce-sdk";
+
+const { publicClient, walletClient } = createArcClients({ network: "testnet", privateKey: process.env.PRIVATE_KEY! });
+
+const result = await payOnce(walletClient, publicClient, {
+  contract: process.env.SETTLEONCE_ADDRESS!,
+  vendorRef: "VENDOR-7",
+  invoiceRef: "INV-1042",
+  recipient: "0x…",
+  amountUsdc: "0.02",
+});
+
+// "paid" | "already-paid" | "conflict" — a rerun can never pay twice
+console.log(result.status, result.receipt.paidAtBlock);
+```
+
+`payOnce` reads the chain before it signs anything, approves exactly the invoice amount when the
+allowance is short, and maps the `AlreadyPaid` and `SettlementConflict` reverts onto statuses
+instead of exceptions. An agent needs no journal, no database and no idempotency key of its own:
+the invoice's own references are the key.
+
+### The demo: an agent that dies mid-payment
+
+[`examples/agent-pay`](examples/agent-pay) pays a JSON file of bills and can be killed the instant
+a payment is broadcast — the one moment a retry normally turns into a double payment.
+
+```powershell
+cd sdk; npm install                                   # viem, once
+cd ..\examples\agent-pay
+Copy-Item .env.example .env                           # PRIVATE_KEY, NETWORK, SETTLEONCE_ADDRESS
+Copy-Item bills.example.json bills.json               # put your second wallet in "recipient"
+cd ..\..
+
+npx tsx examples/agent-pay/agent-pay.ts examples/agent-pay/bills.json --crash-after=1
+# 💥 Agent crashed        (exit 1, the agent never learns the outcome)
+
+npx tsx examples/agent-pay/agent-pay.ts examples/agent-pay/bills.json
+# bill 1 -> ALREADY PAID (block N) · the rest -> PAID NOW
+```
+
+Full walkthrough, including how to force a `CONFLICT`, in
+[examples/agent-pay/README.md](examples/agent-pay/README.md).
 
 ## Why Arc
 

@@ -1,0 +1,41 @@
+{
+  "name": "settleonce-sdk",
+  "version": "0.1.0",
+  "description": "Pay a USDC invoice on Arc at most once, from any app or AI agent. One invoice key, one payment, recoverable from the chain.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "arc",
+    "usdc",
+    "invoice",
+    "idempotent",
+    "payments",
+    "viem"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "viem": "2.57.4"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

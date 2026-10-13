@@ -1,0 +1,20 @@
+[
+  {
+    "vendorRef": "ACME-SUPPLIES",
+    "invoiceRef": "INV-1042",
+    "recipient": "0xYOUR_SECOND_WALLET",
+    "amountUsdc": "0.01"
+  },
+  {
+    "vendorRef": "NORTHWIND-PRINT",
+    "invoiceRef": "NW-2201",
+    "recipient": "0xYOUR_SECOND_WALLET",
+    "amountUsdc": "0.02"
+  },
+  {
+    "vendorRef": "VENDOR-7",
+    "invoiceRef": "INV-1042",
+    "recipient": "0xYOUR_SECOND_WALLET",
+    "amountUsdc": "0.03"
+  }
+]
