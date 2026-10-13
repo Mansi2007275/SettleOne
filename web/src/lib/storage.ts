@@ -1,5 +1,6 @@
-import { getAddress, type Hex } from "viem";
+import { getAddress, isAddress, type Hex } from "viem";
 import type { Invoice } from "./invoice";
+import { MAX_VENDORS, type VendorBook } from "./walletGuard";
 
 /**
  * The desk (the list of invoices you loaded) is kept in this browser for convenience only.
@@ -79,6 +80,65 @@ export function saveFlowCollapsed(collapsed: boolean): void {
     else window.localStorage.removeItem(FLOW_COLLAPSED_KEY);
   } catch {
     /* the strip still collapses for this page view, it just will not be remembered */
+  }
+}
+
+const VENDOR_BOOK_KEY = "settleonce.vendor-wallets.v1";
+const WALLET_CONFIRMED_KEY = "settleonce.wallet-confirmed.v1";
+
+type StoredVendor = { recipient: string; lastPaidBlock: string };
+
+/**
+ * The wallet each vendor was last paid at, so a silently changed recipient can be spotted.
+ * Only ever written from a settlement the contract confirmed; paid status still comes from chain.
+ */
+export function loadVendorBook(): VendorBook {
+  try {
+    const raw = window.localStorage.getItem(VENDOR_BOOK_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, StoredVendor>;
+    const book: VendorBook = {};
+    for (const [vendorRef, value] of Object.entries(parsed).slice(0, MAX_VENDORS)) {
+      if (!value || !isAddress(value.recipient, { strict: false })) continue;
+      book[vendorRef] = { recipient: getAddress(value.recipient), lastPaidBlock: BigInt(value.lastPaidBlock) };
+    }
+    return book;
+  } catch {
+    /* unreadable or unavailable storage just means no vendor history to compare against */
+    return {};
+  }
+}
+
+export function saveVendorBook(book: VendorBook): void {
+  try {
+    const data: Record<string, StoredVendor> = {};
+    for (const [vendorRef, value] of Object.entries(book)) {
+      data[vendorRef] = { recipient: value.recipient, lastPaidBlock: value.lastPaidBlock.toString() };
+    }
+    window.localStorage.setItem(VENDOR_BOOK_KEY, JSON.stringify(data));
+  } catch {
+    /* the guard still works for this page view, it just won't be remembered */
+  }
+}
+
+/** Invoice keys whose new wallet the reader has confirmed with the vendor. */
+export function loadConfirmedWallets(): Hex[] {
+  try {
+    const raw = window.localStorage.getItem(WALLET_CONFIRMED_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((key): key is Hex => typeof key === "string" && /^0x[0-9a-fA-F]{64}$/.test(key));
+  } catch {
+    return [];
+  }
+}
+
+export function saveConfirmedWallets(keys: readonly Hex[]): void {
+  try {
+    window.localStorage.setItem(WALLET_CONFIRMED_KEY, JSON.stringify(keys));
+  } catch {
+    /* ignore */
   }
 }
 

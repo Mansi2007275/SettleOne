@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { Address } from "viem";
 import { chain, network } from "@/config/env";
 import { useFeeEstimate } from "@/hooks/useFeeEstimate";
@@ -12,6 +12,7 @@ import type { Invoice } from "@/lib/invoice";
 import { receiptPath } from "@/lib/receiptExport";
 import type { TicketStatus } from "@/lib/settlement";
 import { formatUsdc } from "@/lib/usdc";
+import { isPayBlocked, warningMessage, type WalletWarning } from "@/lib/walletGuard";
 import { CopyButton } from "@/components/ui/CopyButton";
 import styles from "./InvoiceTicket.module.css";
 
@@ -24,6 +25,9 @@ type Props = {
   step: PayStep | null;
   outcome: PayOutcome | undefined;
   otherBusy: boolean;
+  /** This vendor is known at a different wallet, or clashes with another row on the desk. */
+  warning: WalletWarning | null;
+  onConfirmWallet: () => void;
   onPay: () => void;
   onRemove: () => void;
   onRetryRead: () => void;
@@ -39,9 +43,13 @@ const STEP_TEXT: Record<PayStep, string> = {
 };
 
 export function InvoiceTicket(props: Props) {
-  const { invoice, status, payer, balance, step, outcome, otherBusy } = props;
+  const { invoice, status, payer, balance, step, outcome, otherBusy, warning } = props;
+  const id = useId();
   const amount = formatUsdc(invoice.amount);
   const fresh = usePunchMoment(status.kind === "paid");
+  // The vendor's wallet changed and nobody has confirmed the new one yet: no payment goes out,
+  // and this ticket is out of the one-click approve-and-pay path with it.
+  const walletBlocked = isPayBlocked(warning);
 
   // Only a ticket that is about to be paid needs a fee or a balance check.
   const payable = status.kind === "ready" || status.kind === "approval";
@@ -109,7 +117,11 @@ export function InvoiceTicket(props: Props) {
         chip = { tone: "attention", text: "Needs approval" };
         action = (
           <>
-            <button className="btn btn-signal btn-small" onClick={props.onPay} disabled={otherBusy || short}>
+            <button
+              className="btn btn-signal btn-small"
+              onClick={props.onPay}
+              disabled={otherBusy || short || walletBlocked}
+            >
               Pay {amount} USDC
             </button>
             <span className={styles.oneSig}>
@@ -125,7 +137,11 @@ export function InvoiceTicket(props: Props) {
       case "ready":
         chip = { tone: "ready", text: "Ready" };
         action = (
-          <button className="btn btn-signal btn-small" onClick={props.onPay} disabled={otherBusy || short}>
+          <button
+            className="btn btn-signal btn-small"
+            onClick={props.onPay}
+            disabled={otherBusy || short || walletBlocked}
+          >
             Pay {amount} USDC
           </button>
         );
@@ -165,6 +181,31 @@ export function InvoiceTicket(props: Props) {
             </dd>
           </div>
         </dl>
+
+        {warning ? (
+          <div className={styles.guard} data-confirmed={warning.confirmed ? "true" : undefined} role="alert">
+            <p className={styles.guardTitle}>
+              {warning.kind === "history" ? "This vendor's wallet changed" : "Two wallets for one vendor"}
+            </p>
+            <p>{warningMessage(warning)}</p>
+            <label className={styles.guardConfirm} htmlFor={`${id}-confirm`}>
+              <input
+                id={`${id}-confirm`}
+                type="checkbox"
+                checked={warning.confirmed}
+                disabled={warning.confirmed}
+                onChange={props.onConfirmWallet}
+              />
+              <span>I confirmed this wallet with the vendor</span>
+            </label>
+            {warning.confirmed ? null : (
+              <p className={styles.guardNote}>
+                Until then this invoice can&apos;t be paid from here. Ring the vendor on a number you already had;
+                don&apos;t use the contact details on the invoice itself.
+              </p>
+            )}
+          </div>
+        ) : null}
 
         {status.kind === "conflict" && settled ? (
           <p className={styles.alert}>
