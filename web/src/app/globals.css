@@ -58,6 +58,8 @@
   --alarm-ink: #a81b0e;
   --alarm-text: #a81b0e;
   --hold: #9c8673;
+  /* behind a modal dialog */
+  --backdrop: rgb(28 15 6 / 0.6);
 
   color-scheme: light;
 }
@@ -106,6 +108,7 @@
   --alarm-ink: #a81b0e;
   --alarm-text: #ff8a7f;
   --hold: #9c8673;
+  --backdrop: rgb(10 5 2 / 0.72);
 
   color-scheme: dark;
 }

@@ -1,0 +1,146 @@
+/* The mainnet confirmation: a paper slip on the desk, same ink and shadow as a ticket. */
+
+.dialog {
+  width: min(520px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  border: 3px solid var(--ink);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 8px 8px 0 var(--shadow-color);
+  overflow: auto;
+}
+
+.dialog::backdrop {
+  background: var(--backdrop);
+}
+
+.body {
+  padding: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent-ink);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 1.3rem;
+  font-stretch: 88%;
+}
+
+.amount {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 2px solid var(--ink);
+  border-left-width: 8px;
+  border-left-color: var(--accent);
+  background: var(--paper-dim);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.unit {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.block {
+  margin-bottom: 16px;
+}
+
+.label,
+.refs dt {
+  margin: 0 0 4px;
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.address {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0;
+}
+
+.address > span[aria-hidden] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.group {
+  padding: 2px 5px;
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  background: var(--panel);
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.check {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.refs {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.refs dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.warning {
+  margin: 0 0 18px;
+  padding: 8px 10px;
+  border: 2px solid var(--alarm);
+  border-radius: 2px;
+  background: var(--paper-alert);
+  color: var(--alarm-ink);
+  font-weight: 800;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions :global(.btn) {
+  flex: 1 1 auto;
+}
+
+@media (min-width: 480px) {
+  .refs {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .body {
+    padding: 16px;
+  }
+
+  .group {
+    font-size: 0.86rem;
+  }
+}

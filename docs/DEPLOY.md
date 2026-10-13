@@ -18,7 +18,7 @@ USDC is the gas token on Arc. Your wallet needs a little extra USDC beyond the i
 
 **You need:** Node.js 20+, Git, a GitHub account, a Vercel account, MetaMask or Rabby.
 
-**Arc Foundry** (`arc-forge`, `arc-cast`) runs on macOS, Linux, or **WSL on Windows**. On Windows, do the contract steps inside WSL (Ubuntu); the web steps work in PowerShell too.
+**Arc Foundry** (`arc-forge`, `arc-cast`) runs on macOS, Linux, or **WSL on Windows**. On Windows, do the contract steps inside WSL (Ubuntu); the web steps work in PowerShell too. For the mainnet deploy there is also an all-PowerShell route with Foundry from npm — see [8.1](#81-foundry-from-npm).
 
 1. Download the archive for your platform from https://github.com/circlefin/arc-foundry/releases (Windows: use the Linux x86_64 build inside WSL).
 2. Install:
@@ -142,24 +142,98 @@ Write what you saw (addresses, tx hashes) into [VERIFICATION.md](VERIFICATION.md
 
 ## 8. Mainnet (only after step 6 passes)
 
-You need real USDC on Arc mainnet in both the deployer and the payer wallet (a few USDC is plenty for deployment plus tiny demo payments).
+Every command below moves or verifies **real USDC**. Read the whole section first and run nothing until step 6 passed in full. You need real USDC on Arc mainnet in both the deployer and the payer wallet (a few USDC is plenty for deployment plus tiny real payments).
 
-```bash
-cd contracts
-arc-forge script script/DeploySettleOnce.s.sol \
-  --rpc-url arc_mainnet \
-  --account settleonce-deployer \
-  --sender $DEPLOYER \
-  --broadcast
+Written for **Windows PowerShell** with Foundry installed from npm, so the binaries are plain `forge` and `cast`. The mainnet keystore account is called `mansi-mainnet` and is separate from the testnet one.
 
-arc-forge verify-contract <MAINNET_ADDRESS> src/SettleOnce.sol:SettleOnce \
-  --chain-id 5042 \
-  --verifier blockscout \
-  --verifier-url https://explorer.arc.io/api/ \
-  --constructor-args $(arc-cast abi-encode "constructor(address)" 0x3600000000000000000000000000000000000000)
+### 8.1 Foundry from npm
+
+```powershell
+npm install --global @foundry-rs/forge @foundry-rs/cast
+forge --version
+cast --version
 ```
 
-Then in Vercel set `NEXT_PUBLIC_ARC_NETWORK=mainnet`, the mainnet address and start block, and redeploy. (Or keep the testnet site and create a second Vercel project for mainnet.) Repeat the run-through with tiny amounts between wallets you control, and put the mainnet address and a real settlement transaction at the top of the README.
+Arc's own build (`arc-forge`, `arc-cast`) stays what you use for `arc-forge test --network arc` in step 2 — it is the one that applies Arc's runtime rules to the test suite. The npm binaries are for deploying and verifying.
+
+### 8.2 A mainnet keystore account
+
+```powershell
+cast wallet new
+cast wallet import mansi-mainnet --interactive
+cast wallet address --account mansi-mainnet
+```
+
+`cast wallet new` prints an address and a private key; `cast wallet import` takes that key and a password and writes an encrypted keystore to `$env:USERPROFILE\.foundry\keystores`. Nothing goes in `.env`, nothing gets committed. Fund the printed address with real USDC.
+
+Keep the address in the session so the deploy line can use it:
+
+```powershell
+$env:DEPLOYER = cast wallet address --account mansi-mainnet
+```
+
+### 8.3 Deploy
+
+```powershell
+cd contracts
+forge script script/DeploySettleOnce.s.sol --rpc-url arc_mainnet --account mansi-mainnet --sender $env:DEPLOYER --broadcast
+```
+
+PowerShell has no `\` line continuation, so each command is one line here. The script refuses to run on anything but Arc, checks that USDC reports 6 decimals, writes `deployments/arc-mainnet.json`, and prints the three `NEXT_PUBLIC_` lines.
+
+### 8.4 Verify the source on the explorer
+
+```powershell
+$ctorArgs = cast abi-encode "constructor(address)" 0x3600000000000000000000000000000000000000
+forge verify-contract <MAINNET_ADDRESS> src/SettleOnce.sol:SettleOnce --chain-id 5042 --verifier blockscout --verifier-url https://explorer.arc.io/api/ --constructor-args $ctorArgs
+```
+
+(`$ctorArgs`, not `$args` — `$args` is a PowerShell automatic variable.)
+
+### 8.5 Sanity check from the terminal
+
+```powershell
+cast call <MAINNET_ADDRESS> "usdc()(address)" --rpc-url arc_mainnet
+# -> 0x3600000000000000000000000000000000000000
+```
+
+### 8.6 Point the site at mainnet
+
+In Vercel set the three values and redeploy (or keep the testnet site and create a second Vercel project for mainnet):
+
+```
+NEXT_PUBLIC_ARC_NETWORK=mainnet
+NEXT_PUBLIC_SETTLEONCE_ADDRESS=0x…
+NEXT_PUBLIC_SETTLEONCE_START_BLOCK=…
+```
+
+To see the mainnet build locally before you push it:
+
+```powershell
+cd ..\web
+$env:NEXT_PUBLIC_ARC_NETWORK = "mainnet"
+$env:NEXT_PUBLIC_SETTLEONCE_ADDRESS = "0x…"
+$env:NEXT_PUBLIC_SETTLEONCE_START_BLOCK = "…"
+npm run build
+npm start
+```
+
+`NEXT_PUBLIC_` values are baked in at build time, in Vercel and here both.
+
+### 8.7 What the mainnet build does differently
+
+With `NEXT_PUBLIC_ARC_NETWORK=mainnet`, and only then:
+
+- **A banner that never goes away** in the header: *Arc mainnet · real USDC*.
+- **A confirmation before every payment** — the single `payOnce` and the one-signature approve-and-pay batch alike. It shows the amount, the full recipient address in groups of four, the vendor and invoice references, and *This cannot be undone*. Esc or **Cancel** sends nothing.
+- **No demo invoice and no crash test.** Both would spend or throw away real work. They come back only with `?demo=1` in the URL, for a deliberate demo: `https://<your-deployment>/?demo=1`.
+- The faucet link under a short balance is gone — there is no mainnet faucet.
+
+Radar and `/api/paid` read whichever network is configured, so on a mainnet build both are mainnet. Nothing above changes testnet behaviour.
+
+### 8.8 Repeat the run-through
+
+Repeat step 6 with tiny amounts between wallets you control, then put the mainnet address and a real settlement transaction at the top of the README and in [VERIFICATION.md](VERIFICATION.md).
 
 ## Troubleshooting
 

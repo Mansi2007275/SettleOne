@@ -39,6 +39,10 @@ const RECEIPT_TIMEOUT_MS = 90_000;
  *
  * `onSent` runs as soon as the wallet hands back a hash, on either path. The desk's crash test uses
  * it to wipe local state and reload before any success message is shown.
+ *
+ * `pay` sends without asking anything. On Arc mainnet the confirmation the user has to read lives
+ * in front of it — `requestPay` in DeskScreen, which is the desk's only entry into this hook and
+ * covers both paths above. A new caller has to go through there, or add the same gate itself.
  */
 export function usePayInvoice({
   onDone,

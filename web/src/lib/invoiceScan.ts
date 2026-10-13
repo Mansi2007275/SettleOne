@@ -135,8 +135,32 @@ const DOC_TITLE = /^(?:tax\s+|gst\s+|proforma\s+|commercial\s+)?(?:invoice|bill|
 const NOT_A_NAME =
   /^(?:bill\s*to|billed\s*to|ship\s*to|to|invoice|date|due|amount|total|subtotal|gstin|gst|pan|tel|phone|mobile|email|web|www|ref|terms|notes?|description|qty|rate|pay\s*to)\b/i;
 
+/**
+ * The document word printed after the company name on a letterhead:
+ * "PixelForge Studio    INVOICE", "Acme Ltd — Tax Invoice", "Sharma Traders (CASH MEMO)",
+ * "Orbit Tools Invoice INV-1042". None of it is part of the vendor's name, and the vendor
+ * reference derives the invoice key, so "PIXELFORGE STUDIO INVOICE" and "PIXELFORGE STUDIO"
+ * would be two different invoices for the same bill.
+ *
+ * Only a *trailing* word is stripped: a vendor genuinely called "Bill Hicks Design" keeps its
+ * name, and a line that is nothing but the document word strips down to nothing and is refused.
+ */
+const VENDOR_DOC_TAIL =
+  /[\s:|,;.\-\u2013\u2014()[\]#*]*\b(?:(?:tax|gst|proforma|commercial)\s+)?(?:invoice|bill|receipt|cash\s*memo|original|duplicate)s?\b(?:\s*(?:no\.?|number|#)?\s*[:#\-]?\s*[A-Za-z0-9][A-Za-z0-9/._-]*\d[A-Za-z0-9/._-]*)?[\s:|,;.\-\u2013\u2014()[\]#*]*$/i;
+
+export function stripVendorDocWords(value: string): string {
+  let out = value;
+  // "Acme Ltd Tax Invoice Original" carries two of them, so strip until nothing changes.
+  for (let i = 0; i < 4; i++) {
+    const next = out.replace(VENDOR_DOC_TAIL, "");
+    if (next === out) break;
+    out = next;
+  }
+  return out.trim();
+}
+
 function cleanVendor(value: string): string | undefined {
-  const trimmed = value.replace(/^[\s:|\-–—]+/, "").replace(/[\s:|,;]+$/, "");
+  const trimmed = stripVendorDocWords(value.replace(/^[\s:|\-–—]+/, "").replace(/[\s:|,;]+$/, ""));
   if (!trimmed) return undefined;
   if (/0[xX][0-9a-zA-Z]{30,}/.test(trimmed)) return undefined;
   if (/@|https?:\/\/|^www\./i.test(trimmed)) return undefined;
