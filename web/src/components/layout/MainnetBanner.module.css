@@ -1,0 +1,48 @@
+/* Real-money warning strip. Colour comes from the shared tokens, so both themes follow. */
+
+.banner {
+  border-bottom: 3px solid var(--accent);
+  background: var(--paper-alert);
+  color: var(--ink);
+}
+
+.shell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: 7px var(--gutter);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.shell strong {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mark {
+  align-self: center;
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.dot {
+  color: var(--accent-ink);
+}
+
+@media (max-width: 420px) {
+  .shell {
+    font-size: 0.82rem;
+    padding-block: 6px;
+  }
+}
