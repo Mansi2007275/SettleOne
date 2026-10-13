@@ -10,6 +10,15 @@ web/out/
 web/*.tsbuildinfo
 web/.vercel
 
+# sdk
+sdk/node_modules/
+sdk/dist/
+sdk/*.tsbuildinfo
+
+# example agent: real bills and real keys stay local
+examples/agent-pay/bills.json
+examples/agent-pay/node_modules/
+
 # contracts
 contracts/out/
 contracts/cache/
