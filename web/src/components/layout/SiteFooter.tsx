@@ -1,4 +1,5 @@
 import { chain, settleOnceAddress } from "@/config/env";
+import { LIMITS_SENTENCE } from "@/lib/disclaimer";
 import { addressUrl } from "@/lib/explorer";
 
 export function SiteFooter() {
@@ -15,8 +16,7 @@ export function SiteFooter() {
       <div className="shell" style={{ display: "grid", gap: 8 }}>
         <p style={{ maxWidth: "80ch" }}>
           SettleOnce guarantees at most one settlement per payer wallet and invoice key, through this contract on{" "}
-          {chain.name}. It can&apos;t tell whether an invoice is legitimate, stop payments made outside it, or recover a
-          payment sent to the wrong address.
+          {chain.name}. {LIMITS_SENTENCE}
         </p>
         <p>
           Contract{" "}

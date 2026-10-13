@@ -62,7 +62,8 @@ invoice file (CSV) ──► invoice key ──► receiptsFor(payer, keys)  ─
 
 ## Pages
 
-- **Desk** (`/`): write invoices, load a CSV or **scan a photo of an invoice**, connect a wallet, pay. Each invoice is a ticket; paying punches its stub. Includes a clearly labelled **crash test** that wipes the desk and reloads right after the wallet sends, so you can demonstrate recovery.
+- **Desk** (`/`): write invoices, load a CSV or **scan a photo of an invoice**, connect a wallet, pay. Each invoice is a ticket; paying punches its stub. A live **Your progress** stepper at the top reads the wallet, the desk and the chain and says which of the six steps you are on; "Hide" only collapses it to a one-line bar, so the loop is never hidden for good. Includes a clearly labelled **crash test** that wipes the desk and reloads right after the wallet sends, so you can demonstrate recovery.
+- **How it works** (`/how`): the six steps in full, what the contract guarantees, and what it deliberately does not do.
 - **Receipt** (`/receipt/<payer>/<key>`): a public, wallet-free receipt read live from the contract, with a QR
   code of its own link. Once the contract says paid, **Download JSON** and **Download PDF** keep a copy: the
   JSON carries the exact base units and the explorer links, the PDF is the slip itself, QR code and `PAID ONCE`
@@ -137,6 +138,7 @@ npm run dev
 | `web/src/lib/receiptExport.test.ts` | The kept copy: every contract fact written out, amounts as exact base units, references only when they derive the key, filename slug and fallback to the short key, receipt link encoding, the PDF's line list |
 | `web/src/lib/qr.test.ts` | QR geometry: quiet zone, dark modules collapsed into runs and covered exactly once, path output, a matrix that doesn't add up is refused |
 | `web/src/lib/receiptPdf.test.ts` | PDF ink: theme tokens resolved per token, anything that isn't a plain hex falls back instead of silently printing black |
+| `web/src/lib/flowProgress.test.ts` | The six-step stepper: each step's done rule, the current step is the first unfinished one, a later step can be done while an earlier one is open, the recovery tip never becomes the current step or blocks the one after it, and the newest paid receipt is picked by settlement block as a bigint |
 | `web/src/lib/invoiceScan.test.ts` | OCR text samples: clean invoice, missing wallet, `1,250.00` and `$1,250.00`, European separators, `O`/`l` repaired inside the address, subtotal vs total, two totals that disagree, no invoice number, Hindi/English labels, broken checksum, several addresses, unreadable text |
 
 Results are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).

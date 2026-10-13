@@ -58,24 +58,27 @@ export function saveSavedCsv(csv: string): void {
   }
 }
 
-const HOW_IT_WORKS_KEY = "settleonce.how-it-works-dismissed.v1";
+const FLOW_COLLAPSED_KEY = "settleonce.flow-steps-collapsed.v1";
 
-/** Whether the reader has pressed "Got it" on the how-it-works strip in this browser. */
-export function loadHowItWorksDismissed(): boolean {
+/**
+ * Whether the six-step strip is collapsed to its one-line bar in this browser.
+ * The steps are never hidden for good: collapsed still shows which step you are on.
+ */
+export function loadFlowCollapsed(): boolean {
   try {
-    return window.localStorage.getItem(HOW_IT_WORKS_KEY) === "1";
+    return window.localStorage.getItem(FLOW_COLLAPSED_KEY) === "1";
   } catch {
-    /* storage can be unavailable (private mode); the strip just shows again next time */
+    /* storage can be unavailable (private mode); the steps just open again next time */
     return false;
   }
 }
 
-export function saveHowItWorksDismissed(dismissed: boolean): void {
+export function saveFlowCollapsed(collapsed: boolean): void {
   try {
-    if (dismissed) window.localStorage.setItem(HOW_IT_WORKS_KEY, "1");
-    else window.localStorage.removeItem(HOW_IT_WORKS_KEY);
+    if (collapsed) window.localStorage.setItem(FLOW_COLLAPSED_KEY, "1");
+    else window.localStorage.removeItem(FLOW_COLLAPSED_KEY);
   } catch {
-    /* the strip still hides for this page view, it just won't be remembered */
+    /* the strip still collapses for this page view, it just will not be remembered */
   }
 }
 
