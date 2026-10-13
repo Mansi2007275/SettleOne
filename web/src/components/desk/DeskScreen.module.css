@@ -16,6 +16,11 @@
   scroll-margin-top: 88px;
 }
 
+/* The mainnet banner sits inside that sticky header and makes it taller. */
+:global(body:has([data-mainnet-banner])) .anchor {
+  scroll-margin-top: 120px;
+}
+
 .rail {
   display: grid;
   gap: 22px;
