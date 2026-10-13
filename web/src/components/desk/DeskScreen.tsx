@@ -15,14 +15,24 @@ import type { ScanPrefill } from "@/lib/invoiceScan";
 import { ticketStatus } from "@/lib/settlement";
 import { hasSummary, summarizeDesk } from "@/lib/summary";
 import {
+  rememberConfirmation,
+  rememberPaidVendors,
+  walletWarnings,
+  type VendorBook,
+} from "@/lib/walletGuard";
+import {
+  loadConfirmedWallets,
   loadCrashSwitch,
   loadDesk,
   loadFlowCollapsed,
   loadSavedCsv,
+  loadVendorBook,
+  saveConfirmedWallets,
   saveCrashSwitch,
   saveDesk,
   saveFlowCollapsed,
   saveSavedCsv,
+  saveVendorBook,
   wipeDesk,
 } from "@/lib/storage";
 import { SetupNotice } from "@/components/layout/SetupNotice";
@@ -50,12 +60,16 @@ export function DeskScreen() {
   const [prefill, setPrefill] = useState<ScanPrefill | null>(null);
   const [demoFill, setDemoFill] = useState<DemoFill | null>(null);
   const [stepsCollapsed, setStepsCollapsed] = useState(false);
+  const [vendorBook, setVendorBook] = useState<VendorBook>({});
+  const [confirmedWallets, setConfirmedWallets] = useState<Hex[]>([]);
 
   useEffect(() => {
     setDesk(loadDesk());
     setCrashArmed(loadCrashSwitch());
     setSavedCsv(loadSavedCsv());
     setStepsCollapsed(loadFlowCollapsed());
+    setVendorBook(loadVendorBook());
+    setConfirmedWallets(loadConfirmedWallets());
     setHydrated(true);
   }, []);
 
@@ -111,6 +125,52 @@ export function DeskScreen() {
         }),
       ),
     [desk, mounted, isConnected, onRightNetwork, settlements.byKey, settlements.loading, settlements.error, usdc.allowance],
+  );
+
+  /**
+   * The vendor-wallet memory, written only from settlements the contract confirmed. It is what
+   * makes a silently changed recipient visible: the key ignores the recipient on purpose, so the
+   * contract can't catch this one and the desk has to.
+   */
+  useEffect(() => {
+    if (!hydrated) return;
+    const paid = desk.flatMap((invoice, i) => {
+      const status = statuses[i]!;
+      return status.kind === "paid"
+        ? [{ vendorRef: invoice.vendorRef, recipient: status.settlement.recipient, paidAtBlock: status.settlement.paidAtBlock }]
+        : [];
+    });
+    if (paid.length === 0) return;
+    setVendorBook((book) => {
+      const next = rememberPaidVendors(book, paid);
+      // rememberPaidVendors returns the same object when nothing changed, so this writes once.
+      if (next !== book) saveVendorBook(next);
+      return next;
+    });
+  }, [desk, statuses, hydrated]);
+
+  const confirmWallet = useCallback((key: Hex) => {
+    setConfirmedWallets((keys) => {
+      const next = rememberConfirmation(keys, key);
+      saveConfirmedWallets(next);
+      return next;
+    });
+  }, []);
+
+  /** Tickets whose vendor is known at a different wallet, or that clash with another row here. */
+  const warnings = useMemo(
+    () =>
+      walletWarnings({
+        rows: desk.map((invoice, i) => ({
+          key: invoice.key,
+          vendorRef: invoice.vendorRef,
+          recipient: invoice.recipient,
+          paid: statuses[i]!.kind === "paid",
+        })),
+        book: vendorBook,
+        confirmedKeys: confirmedWallets,
+      }),
+    [desk, statuses, vendorBook, confirmedWallets],
   );
 
   // Rolled up from the same chain-derived statuses the tickets show, never from local memory.
@@ -242,6 +302,8 @@ export function DeskScreen() {
                     step={payment.active?.key === invoice.key ? payment.active.step : null}
                     outcome={payment.outcomes[invoice.key]}
                     otherBusy={payment.busy}
+                    warning={warnings.get(invoice.key) ?? null}
+                    onConfirmWallet={() => confirmWallet(invoice.key)}
                     onPay={() => payment.pay(invoice)}
                     onRemove={() => setDesk((d) => d.filter((x) => x.key !== invoice.key))}
                     onRetryRead={() => void refreshAll()}
