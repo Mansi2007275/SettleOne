@@ -11,6 +11,7 @@ import styles from "./SiteHeader.module.css";
 const NAV = [
   { href: "/", label: "Desk" },
   { href: "/how", label: "How it works" },
+  { href: "/radar", label: "Radar" },
   { href: "/ledger", label: "Ledger" },
 ];
 
