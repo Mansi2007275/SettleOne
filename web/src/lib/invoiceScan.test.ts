@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { normalizeScannedAmount, parseInvoiceText, scanFoundSomething } from "./invoiceScan";
+import {
+  normalizeScannedAmount,
+  parseInvoiceText,
+  scanFoundSomething,
+  stripVendorDocWords,
+} from "./invoiceScan";
 
 /**
  * Every sample below is written the way tesseract.js actually hands text back: one line per visual
@@ -266,4 +271,67 @@ Total discount 10% applied
 
 it("is pure: the same text gives the same suggestions", () => {
   expect(parseInvoiceText(CLEAN)).toEqual(parseInvoiceText(CLEAN));
+});
+/* ------------------------------------------------------------------ 14. the document word on the letterhead */
+
+/**
+ * Reported from a real scan: the letterhead read "PixelForge Studio    INVOICE" on one line, so
+ * the vendor reference came back as "PIXELFORGE STUDIO INVOICE". The vendor reference derives the
+ * invoice key, so that is a different invoice from the same bill typed in by hand.
+ */
+describe("the vendor name drops a trailing document word", () => {
+  it("fixes the reported scan", () => {
+    const r = parseInvoiceText(`PixelForge Studio    INVOICE
+Invoice No: PF-2291
+Total  12.00 USDC
+Pay to wallet: ${PAYEE}
+`);
+    expect(r.vendorRef).toBe("PIXELFORGE STUDIO");
+  });
+
+  it("drops each of the words a bill is titled with", () => {
+    expect(stripVendorDocWords("PixelForge Studio INVOICE")).toBe("PixelForge Studio");
+    expect(stripVendorDocWords("PixelForge Studio TAX INVOICE")).toBe("PixelForge Studio");
+    expect(stripVendorDocWords("Sharma Traders BILL")).toBe("Sharma Traders");
+    expect(stripVendorDocWords("Sharma Traders RECEIPT")).toBe("Sharma Traders");
+    expect(stripVendorDocWords("Sharma Traders CASH MEMO")).toBe("Sharma Traders");
+    expect(stripVendorDocWords("Sharma Traders ORIGINAL")).toBe("Sharma Traders");
+    expect(stripVendorDocWords("Sharma Traders DUPLICATE")).toBe("Sharma Traders");
+  });
+
+  it("copes with punctuation, lower case and two words stacked up", () => {
+    expect(stripVendorDocWords("Acme Ltd - Tax Invoice")).toBe("Acme Ltd");
+    expect(stripVendorDocWords("Acme Ltd (CASH MEMO)")).toBe("Acme Ltd");
+    expect(stripVendorDocWords("Acme Ltd invoice")).toBe("Acme Ltd");
+    expect(stripVendorDocWords("Acme Ltd Tax Invoice Original")).toBe("Acme Ltd");
+    expect(stripVendorDocWords("Orbit Tools Invoice INV-1042")).toBe("Orbit Tools");
+  });
+
+  it("only strips the tail: a name that contains the word keeps it", () => {
+    expect(stripVendorDocWords("Bill Hicks Design")).toBe("Bill Hicks Design");
+    expect(stripVendorDocWords("Invoice Ninja Pvt Ltd")).toBe("Invoice Ninja Pvt Ltd");
+    expect(stripVendorDocWords("Receipt Printing Co")).toBe("Receipt Printing Co");
+  });
+
+  it("refuses a line that is nothing but the document word", () => {
+    expect(stripVendorDocWords("TAX INVOICE")).toBe("");
+    expect(stripVendorDocWords("CASH MEMO")).toBe("");
+    // "CASH MEMO" is not one of the document titles the letterhead scan already skips, so before
+    // the strip it was read as the vendor's name.
+    const r = parseInvoiceText(`CASH MEMO
+Invoice No: X-9
+Total 1.00
+`);
+    expect(r.vendorRef).toBeUndefined();
+  });
+
+  it("keeps the labelled vendor clean too", () => {
+    const r = parseInvoiceText(`ACME HOLDINGS
+Billed from: Kiran Studio - Tax Invoice
+Invoice No: K-12
+Total 0.50
+`);
+    expect(r.vendorRef).toBe("KIRAN STUDIO");
+    expect(r.confidence.vendorRef).toBe("high");
+  });
 });

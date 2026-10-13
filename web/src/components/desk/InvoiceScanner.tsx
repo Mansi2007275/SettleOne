@@ -40,7 +40,19 @@ async function loadCreateWorker(): Promise<CreateWorker> {
   return createWorker;
 }
 
-export function InvoiceScanner({ onScanned }: { onScanned: (result: ScanResult) => void }) {
+/**
+ * A file picked somewhere else on the desk and sent here instead — an invoice image dropped on
+ * the CSV bench. `at` makes every hand-off a new object, so the same file sent twice scans twice.
+ */
+export type ScanHandoff = { file: File; at: number };
+
+export function InvoiceScanner({
+  onScanned,
+  handoff,
+}: {
+  onScanned: (result: ScanResult) => void;
+  handoff?: ScanHandoff | null;
+}) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -168,6 +180,20 @@ export function InvoiceScanner({ onScanned }: { onScanned: (result: ScanResult) 
     if (input) input.value = "";
     void run(file);
   };
+
+  /**
+   * A file handed over from elsewhere on the desk: open the scanner and read it, without the user
+   * picking the same file a second time. `run` is rebuilt on every render, so the hand-off's own
+   * timestamp is what decides whether this is a new one.
+   */
+  const handledRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!handoff || handledRef.current === handoff.at) return;
+    handledRef.current = handoff.at;
+    setOpen(true);
+    void run(handoff.file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handoff]);
 
   const found = result ? scanFoundSomething(result) : false;
 
