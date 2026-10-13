@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PunchMark } from "@/components/brand/PunchMark";
+import { MainnetBanner } from "@/components/layout/MainnetBanner";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { NetworkBadge } from "@/components/wallet/NetworkBadge";
 import { WalletButton } from "@/components/wallet/WalletButton";
@@ -20,6 +21,8 @@ export function SiteHeader() {
 
   return (
     <header className={styles.header}>
+      {/* Nothing above this on mainnet, and it scrolls with the sticky header. */}
+      <MainnetBanner />
       <div className={`shell ${styles.bar}`}>
         <Link href="/" className={styles.brand} aria-label="SettleOnce home">
           <PunchMark />
