@@ -69,6 +69,8 @@ invoice file (CSV) ──► invoice key ──► receiptsFor(payer, keys)  ─
   JSON carries the exact base units and the explorer links, the PDF is the slip itself, QR code and `PAID ONCE`
   stamp included. Both are built in the tab — `jspdf` and `qrcode` are pinned and loaded as their own chunks,
   nothing is uploaded, and there is still no backend.
+- **Wallet-change guard** (on the desk): the desk remembers, from the chain only, which wallet each vendor was last paid at. If a new invoice for a known vendor points somewhere else — the commonest invoice fraud there is — the ticket says which wallet was paid before and which one this invoice uses, and **Pay is held** until you tick "I confirmed this wallet with the vendor". One vendor reference carrying two different wallets on the same desk warns on both tickets. The invoice key deliberately ignores the recipient, so the contract cannot catch this; the desk has to.
+- **Radar** (`/radar`): paste any address and the page reads its USDC transfers off the chain, then flags the same amount landing at the same recipient twice inside a window you choose (1 hour / 24 hours / 7 days). Everything it finds is labelled *suspected*: a retainer and a double payment look identical from outside. It needs no wallet, and SettleOnce is not involved — these are plain transfers, the way most invoices are paid today.
 - **Ledger** (`/ledger`): every `InvoicePaid` event, newest first, plus a lookup form.
 
 ## Scan invoice (optional)
@@ -103,7 +105,8 @@ contracts/           Foundry project
 web/                 Next.js 15 + wagmi + viem app
   src/config/        Arc chains, env, wagmi
   src/lib/           invoice keys, CSV, USDC units, OCR field parsing, receipt export + QR, errors
-  src/hooks/         settlement reads, pay flow, receipt tx lookup, ledger scan
+  src/hooks/         settlement reads, pay flow, receipt tx lookup, ledger scan, duplicate scan
+  src/app/api/paid/  proof-of-payment endpoint (one contract read, no cache)
   src/components/    desk, invoice scanner, receipt, ledger, wallet UI
 sdk/                 settleonce-sdk: pay an invoice once from any app or AI agent (viem only)
   src/invoiceKey.ts            the same key as the contract and the web app
@@ -142,6 +145,9 @@ npm run dev
 | `web/src/lib/receiptExport.test.ts` | The kept copy: every contract fact written out, amounts as exact base units, references only when they derive the key, filename slug and fallback to the short key, receipt link encoding, the PDF's line list |
 | `web/src/lib/qr.test.ts` | QR geometry: quiet zone, dark modules collapsed into runs and covered exactly once, path output, a matrix that doesn't add up is refused |
 | `web/src/lib/receiptPdf.test.ts` | PDF ink: theme tokens resolved per token, anything that isn't a plain hex falls back instead of silently printing black |
+| `web/src/lib/walletGuard.test.ts` | The wallet-change guard: the memory is only written from confirmed settlements, an older settlement never overwrites a newer one, at most 100 vendors with the oldest payment dropped first, a changed recipient warns while the same one (in any case) does not, two wallets for one vendor warn both tickets, a settled row is never held back, and a confirmation unlocks exactly one invoice key |
+| `web/src/lib/duplicateRadar.test.ts` | The radar's heuristic: grouping by recipient and amount, the window edge exactly on and one second past, the window measured from each cluster's first payment, different amounts and recipients left alone, bigint amounts beyond float range, one block holding two transfers, and only the blocks that could pair up getting a timestamp read |
+| `web/src/lib/paidApi.test.ts` | The proof-of-payment endpoint: the same key as the desk, normalized references, every bad-input case named, unpaid answered as nulls rather than zeros, blocks as strings past `MAX_SAFE_INTEGER`, escaped receipt links, and the forwarded-host origin |
 | `sdk/src/invoiceKey.test.ts` | The SDK derives the same key as the contract: the pinned `VENDOR-7 / INV-1042` vector, normalization, references that must stay apart, and no collision between the two fields |
 | `sdk/src/amount.test.ts` | Strict amounts: `0.01` is 10,000 base units, commas / signs / exponents / 7 decimals / zero are all refused, and Arc's 20 gwei fee floor is applied even with no estimate |
 | `sdk/src/errors.test.ts` | Error mapping from real viem reverts: `AlreadyPaid` and `SettlementConflict` become statuses, everything else stays an error |
@@ -150,6 +156,39 @@ npm run dev
 | `web/src/lib/invoiceScan.test.ts` | OCR text samples: clean invoice, missing wallet, `1,250.00` and `$1,250.00`, European separators, `O`/`l` repaired inside the address, subtotal vs total, two totals that disagree, no invoice number, Hindi/English labels, broken checksum, several addresses, unreadable text |
 
 Results are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).
+
+## Proof-of-payment API
+
+One HTTP call answers "has this wallet paid this invoice?", for an accounting system, a vendor
+portal, a shell script or an agent with no wallet of its own.
+
+```
+GET /api/paid?payer=<address>&vendor=<vendor_ref>&invoice=<invoice_ref>
+```
+
+```bash
+curl -s "https://<your-deployment>/api/paid?payer=0x391c7b24264c2ff12306BBaa4e9285fcF34bE5eF&vendor=VENDOR-7&invoice=INV-1042"
+```
+
+```json
+{
+  "paid": true,
+  "recipient": "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+  "amountUsdc": "0.02",
+  "paidAtBlock": "4210",
+  "invoiceKey": "0xab5b28042934ef336c314097fc9ef9bf892d55f63f1cd232f88b47bcceed004b",
+  "receiptUrl": "https://<your-deployment>/receipt/0x391c…/0xab5b…?v=VENDOR-7&i=INV-1042"
+}
+```
+
+- The references are normalized and hashed into the invoice key exactly as the desk does, so
+  `vendor-7` and `VENDOR-7` are the same invoice.
+- An unpaid invoice answers `"paid": false` with `recipient`, `amountUsdc` and `paidAtBlock` as
+  `null` — never zeros that could be mistaken for a real settlement. `receiptUrl` is always there.
+- `paidAtBlock` is a string: JSON has no 64-bit integers, and a block number is not worth rounding.
+- Every answer is a fresh contract read, served `cache-control: no-store`. There is no database.
+- `400` names the parameter that was wrong, `503` means this deployment has no contract configured,
+  and `502` means the chain could not be read — which is never reported as "not paid".
 
 ## Use SettleOnce from your app or AI agent
 
