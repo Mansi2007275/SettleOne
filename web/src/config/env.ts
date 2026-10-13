@@ -1,14 +1,16 @@
 import { getAddress, isAddress, type Address } from "viem";
+import { cleanEnv } from "@/lib/envValue";
 import { CHAINS, type ArcNetwork } from "./chains";
 
 /**
  * Public runtime configuration. Next.js only inlines NEXT_PUBLIC_* values that are referenced
- * literally, so each one is read by name below.
+ * literally, so each one is read by name below, then cleaned of the stray spaces and quotes a
+ * dashboard or `.env` file can leave behind.
  */
-const rawNetwork = process.env.NEXT_PUBLIC_ARC_NETWORK;
-const rawAddress = process.env.NEXT_PUBLIC_SETTLEONCE_ADDRESS;
-const rawStartBlock = process.env.NEXT_PUBLIC_SETTLEONCE_START_BLOCK;
-const rawRpc = process.env.NEXT_PUBLIC_ARC_RPC_URL;
+const rawNetwork = cleanEnv(process.env.NEXT_PUBLIC_ARC_NETWORK);
+const rawAddress = cleanEnv(process.env.NEXT_PUBLIC_SETTLEONCE_ADDRESS);
+const rawStartBlock = cleanEnv(process.env.NEXT_PUBLIC_SETTLEONCE_START_BLOCK);
+const rawRpc = cleanEnv(process.env.NEXT_PUBLIC_ARC_RPC_URL);
 
 export const network: ArcNetwork = rawNetwork === "mainnet" ? "mainnet" : "testnet";
 
