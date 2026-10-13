@@ -1,13 +1,43 @@
 # SettleOnce
 
-**Pay each USDC invoice on Arc at most once, and find out what was already paid after the app crashes.**
+**At-most-once USDC settlement on Arc — for people, apps and AI agents.**
+
+Pay each USDC invoice on Arc at most once, and find out what was already paid after the app crashes, the tab closes or an agent retries.
+
+> ✅ **Live on Arc mainnet** · source verified on the explorer · first real settlement on 14 Oct 2026
 
 | | |
 |---|---|
-| Live app | _add your Vercel URL after deploying_ |
-| Contract (Arc Testnet) | _add address + explorer link_ |
-| Contract (Arc mainnet) | _add address + explorer link_ |
-| Demo video | _add link_ |
+| **Live app (Arc mainnet)** | https://settle-one-mainnet.vercel.app |
+| Live app (Arc Testnet, free to try) | https://settle-one-sandy.vercel.app |
+| **Contract (Arc mainnet, verified)** | [`0x0D582d835E515CC0EC02C9b562F9120BF308CA2c`](https://explorer.arc.io/address/0x0D582d835E515CC0EC02C9b562F9120BF308CA2c?tab=contract) |
+| First mainnet settlement | [`0x65aca9ec…a63ef`](https://explorer.arc.io/tx/0x65aca9ecb4eba41a301a52a536b455fa45d3b0a34fefdcb87e51182ab0aa63ef) |
+| Contract (Arc Testnet) | [`0x391c7b24264c2ff12306BBaa4e9285fcF34bE5eF`](https://explorer.testnet.arc.io/address/0x391c7b24264c2ff12306BBaa4e9285fcF34bE5eF) |
+| Demo video | _coming soon_ |
+| Verification record | [docs/VERIFICATION.md](docs/VERIFICATION.md) |
+
+### Try it in two minutes (testnet, no real money)
+
+1. Get free test USDC from the [Circle faucet](https://faucet.circle.com) (choose **Arc Testnet**).
+2. Open the [testnet app](https://settle-one-sandy.vercel.app) and connect MetaMask.
+3. Press **Try with a demo invoice** → **Pay**. The ticket is punched **PAID ONCE**.
+4. Add the same invoice again and press Pay: the chain refuses it.
+5. Turn on **Crash test**, pay another invoice, then load your saved file: the chain tells you what already went out.
+
+### What's inside
+
+| | |
+|---|---|
+| 🔒 **The contract** | One payer wallet + one invoice key = one settlement, ever. No admin, no custody, no upgrade proxy. |
+| ✍️ **One-signature pay** | `approve` + `payOnce` in a single transaction through Arc's `Multicall3From`, with your wallet still `msg.sender`. |
+| 💥 **Crash recovery** | Save the desk as a CSV; after any crash, load it and the chain fills in what's paid. |
+| 📷 **Scan invoice** | Photo → form, OCR runs inside the browser tab. Nothing is uploaded. |
+| 🧾 **Receipts** | Public receipt page read live from the contract, with PDF/JSON download and a QR code. |
+| 🔍 **Duplicate Radar** | Paste any wallet: finds suspected double payments in its plain USDC history. |
+| 🚨 **Wallet-change guard** | Warns and holds Pay when a known vendor's wallet suddenly changes. |
+| 🌐 **`/api/paid`** | One HTTP call tells a vendor or a script whether an invoice was paid. |
+| 🤖 **SDK + AI agent** | `settleonce-sdk` and a crash-safe paying agent: kill it mid-payment, rerun, nothing is paid twice. |
+| 🛡️ **Mainnet safety** | "Arc mainnet · real USDC" banner, a confirm dialog before every payment, demo tools hidden. |
 
 ---
 
@@ -170,7 +200,7 @@ GET /api/paid?payer=<address>&vendor=<vendor_ref>&invoice=<invoice_ref>
 ```
 
 ```bash
-curl -s "https://<your-deployment>/api/paid?payer=0x391c7b24264c2ff12306BBaa4e9285fcF34bE5eF&vendor=VENDOR-7&invoice=INV-1042"
+curl -s "https://settle-one-mainnet.vercel.app/api/paid?payer=0x391c7b24264c2ff12306BBaa4e9285fcF34bE5eF&vendor=VENDOR-7&invoice=INV-1042"
 ```
 
 ```json
