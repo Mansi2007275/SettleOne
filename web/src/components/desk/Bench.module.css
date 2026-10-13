@@ -48,6 +48,56 @@
   gap: 10px;
 }
 
+/* The buttons and the drop target are one area, so a dropped file lands where it is picked. */
+.fileDrop {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 3px dashed var(--edge);
+  border-radius: 3px;
+  background: var(--well);
+}
+
+.fileDrop[data-drag="yes"] {
+  border-color: var(--accent);
+  border-style: solid;
+}
+
+.fileDropHint {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+
+/* An invoice image or PDF dropped on the CSV bench: pointed at the scanner, not at a size limit. */
+.misplaced {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 3px solid var(--accent);
+  border-radius: 3px;
+  background: var(--paper-alert);
+  color: var(--ink);
+}
+
+.misplacedText {
+  margin: 0;
+  font-weight: 700;
+}
+
+.misplacedFile {
+  margin: 0;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.misplacedActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
 .saveState {
   display: flex;
   align-items: center;
