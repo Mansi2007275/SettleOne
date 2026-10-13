@@ -4,9 +4,9 @@
   "private": true,
   "description": "SettleOnce desk: pay USDC invoices on Arc at most once, and recover them after a crash.",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "node init && next dev",
+    "build": "node init && next build",
+    "start": "node init && next start",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run"
   },

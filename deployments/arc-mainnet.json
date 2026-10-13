@@ -1,0 +1,7 @@
+{
+  "chainId": 5042,
+  "network": "arc-mainnet",
+  "settleOnce": "0x0D582d835E515CC0EC02C9b562F9120BF308CA2c",
+  "startBlock": 25798663,
+  "usdc": "0x3600000000000000000000000000000000000000"
+}
