@@ -1,0 +1,33 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "chore/mainnet-deployment",
+    "docs/mainnet-live",
+    "feat/duplicate-radar",
+    "feat/mainnet-safety",
+    "feat/wallet-guard",
+    "fix/trim-env",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "chore/mainnet-deployment": "main",
+    "docs/mainnet-live": "main",
+    "feat/duplicate-radar": "main",
+    "feat/mainnet-safety": "main",
+    "feat/wallet-guard": "main",
+    "fix/trim-env": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "chore/mainnet-deployment",
+    "docs/mainnet-live",
+    "feat/duplicate-radar",
+    "feat/mainnet-safety",
+    "feat/wallet-guard",
+    "fix/trim-env",
+    "origin"
+  ]
+}

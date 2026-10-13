@@ -1,6 +1,4 @@
 # secrets
-.env
-.env.*
 !.env.example
 
 # web
@@ -28,5 +26,6 @@ contracts/broadcast/**/dry-run/
 # os / editors
 .DS_Store
 Thumbs.db
-.vscode/
 .idea/
+config.bat
+node_modules
