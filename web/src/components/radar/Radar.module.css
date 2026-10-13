@@ -1,0 +1,257 @@
+/*
+ * Duplicate radar. Same desk furniture as the rest of the app: bolted-on panels for the controls,
+ * torn-off paper slips for each suspected group, hard ink borders and offset shadows.
+ */
+
+.page {
+  display: grid;
+  gap: clamp(24px, 3.5vw, 36px);
+  padding-block: clamp(32px, 5vw, 56px) 80px;
+}
+
+.head {
+  display: grid;
+  gap: 14px;
+  max-width: 70ch;
+}
+
+.kicker {
+  color: var(--text-dim);
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: clamp(2.1rem, 5.4vw, 3.8rem);
+  font-stretch: 80%;
+  letter-spacing: -0.035em;
+  line-height: 0.97;
+}
+
+.lede {
+  max-width: 64ch;
+  font-size: clamp(1rem, 1.3vw, 1.08rem);
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------ controls */
+
+.controls {
+  display: grid;
+  gap: 14px;
+  max-width: 720px;
+}
+
+.selects {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: var(--border);
+  border-radius: 3px;
+  background: var(--input);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.select:disabled {
+  opacity: 0.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.progress {
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.error {
+  max-width: 80ch;
+  padding: 12px 16px;
+  border: 3px solid var(--alarm);
+  border-radius: 4px;
+  background: var(--paper-alert);
+  color: var(--alarm-ink);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------ results */
+
+.results {
+  display: grid;
+  gap: 14px;
+}
+
+.resultsTitle {
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  font-stretch: 82%;
+}
+
+.sep {
+  color: var(--text-dim);
+}
+
+.caveat {
+  max-width: 76ch;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.groups {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* one suspected group: a slip with a loud edge */
+.group {
+  --link-hover: var(--accent-ink);
+  display: grid;
+  gap: 12px;
+  padding: 16px 18px;
+  border: var(--border);
+  border-left-width: 10px;
+  border-left-color: var(--alarm);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 6px 6px 0 var(--shadow-color);
+}
+
+.groupHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+}
+
+.groupAmount {
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 1.25rem;
+}
+
+.groupTo {
+  font-weight: 600;
+}
+
+.groupCount {
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.groupExtra {
+  color: var(--alarm-ink);
+}
+
+.txs {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 3px dashed var(--ink);
+  padding-top: 12px;
+}
+
+.tx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  font-size: 0.9rem;
+}
+
+.txTag {
+  min-width: 78px;
+  padding: 2px 8px 3px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  background: var(--tag);
+  font-weight: 800;
+  font-stretch: 85%;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.tx:first-child .txTag {
+  background: var(--page);
+}
+
+.txTime {
+  font-weight: 600;
+}
+
+.txLink {
+  margin-left: auto;
+}
+
+/* ------------------------------------------------------------ the pitch */
+
+.pitch {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  max-width: 760px;
+  padding: 22px 24px 24px;
+  border: 3px solid var(--ink);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--ink);
+  box-shadow: 8px 8px 0 var(--shadow-color);
+}
+
+.pitch h2 {
+  color: var(--ink);
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  font-stretch: 84%;
+}
+
+.pitch p {
+  max-width: 68ch;
+  font-weight: 700;
+}
+
+.pitchNote {
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.pitch .btn,
+.pitch a {
+  margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+  .selects {
+    grid-template-columns: 1fr;
+  }
+
+  .groupCount,
+  .txLink {
+    margin-left: 0;
+  }
+
+  .group {
+    padding: 14px 14px;
+  }
+}
