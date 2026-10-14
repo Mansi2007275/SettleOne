@@ -5,6 +5,8 @@
 Pay each USDC invoice on Arc at most once, and find out what was already paid after the app crashes, the tab closes or an agent retries.
 
 > ✅ **Live on Arc mainnet** · source verified on the explorer · first real settlement on 14 Oct 2026
+> ![Uploading image.png…]()
+
 
 | | |
 |---|---|
